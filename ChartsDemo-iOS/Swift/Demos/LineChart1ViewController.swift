@@ -146,6 +146,8 @@ class LineChart1ViewController: DemoBaseViewController {
 
     private func setup(_ dataSet: LineChartDataSet) {
         dataSet.mode = .cubicBezier
+        dataSet.isDashLastPoint = true
+//        dataSet.is
         if dataSet.isDrawLineWithGradientEnabled {
             dataSet.lineDashLengths = nil
             dataSet.highlightLineDashLengths = nil
@@ -160,8 +162,9 @@ class LineChart1ViewController: DemoBaseViewController {
             dataSet.formLineWidth = 1
             dataSet.formSize = 15
         } else {
-            dataSet.lineDashLengths = [5, 2.5]
-            dataSet.highlightLineDashLengths = [5, 2.5]
+            dataSet.lineDashLengths = nil
+//            dataSet.lineDashLengths = [5, 2.5]
+//            dataSet.highlightLineDashLengths = [5, 2.5]
             dataSet.setColor(.black)
             dataSet.setCircleColor(.black)
             dataSet.gradientPositions = nil

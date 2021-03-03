@@ -155,6 +155,11 @@ open class LineChartDataSet: LineRadarChartDataSet, LineChartDataSetProtocol
         }
     }
     
+    
+    /// 最后一个点的连接线是否是虚线
+    /// **default**: false
+    open var isDashLastPoint = false
+    
     // MARK: NSCopying
     
     open override func copy(with zone: NSZone? = nil) -> Any
@@ -172,6 +177,7 @@ open class LineChartDataSet: LineRadarChartDataSet, LineChartDataSetProtocol
         copy.drawCircleHoleEnabled = drawCircleHoleEnabled
         copy.mode = mode
         copy._fillFormatter = _fillFormatter
+        copy.isDashLastPoint = isDashLastPoint
         return copy
     }
 }

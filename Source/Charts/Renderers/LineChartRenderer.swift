@@ -226,6 +226,8 @@ open class LineChartRenderer: LineRadarRenderer
         
         // the path for the cubic-spline
         let cubicPath = CGMutablePath()
+        let lastPointDashCubicPath = CGMutablePath()
+        var isDrawLastPointDashPath = false
         
         let valueToPixelMatrix = trans.valueToPixelMatrix
         
@@ -252,6 +254,12 @@ open class LineChartRenderer: LineRadarRenderer
             
             // let the spline start
             cubicPath.move(to: CGPoint(x: CGFloat(cur.x), y: CGFloat(cur.y * phaseY)), transform: valueToPixelMatrix)
+            lastPointDashCubicPath.move(to: CGPoint(x: CGFloat(cur.x), y: CGFloat(cur.y * phaseY)), transform: valueToPixelMatrix)
+                        
+            let dataSet1 = dataSet as? LineChartDataSet
+            if dataSet1 != nil && dataSet1!.isDashLastPoint{
+                isDrawLastPointDashPath = true
+            }
             
             for j in _xBounds.dropFirst()  // same as firstIndex
             {
@@ -269,17 +277,44 @@ open class LineChartRenderer: LineRadarRenderer
                 curDx = CGFloat(next.x - prev.x) * intensity
                 curDy = CGFloat(next.y - prev.y) * intensity
                 
-                cubicPath.addCurve(
-                    to: CGPoint(
-                        x: CGFloat(cur.x),
-                        y: CGFloat(cur.y) * CGFloat(phaseY)),
-                    control1: CGPoint(
-                        x: CGFloat(prev.x) + prevDx,
-                        y: (CGFloat(prev.y) + prevDy) * CGFloat(phaseY)),
-                    control2: CGPoint(
-                        x: CGFloat(cur.x) - curDx,
-                        y: (CGFloat(cur.y) - curDy) * CGFloat(phaseY)),
-                    transform: valueToPixelMatrix)
+
+                if dataSet.lineDashLengths == nil && isDrawLastPointDashPath && j == _xBounds.max  {
+                    //最后一个点虚线
+                    lastPointDashCubicPath.addCurve(
+                        to: CGPoint(
+                            x: CGFloat(cur.x),
+                            y: CGFloat(cur.y) * CGFloat(phaseY)),
+                        control1: CGPoint(
+                            x: CGFloat(prev.x) + prevDx,
+                            y: (CGFloat(prev.y) + prevDy) * CGFloat(phaseY)),
+                        control2: CGPoint(
+                            x: CGFloat(cur.x) - curDx,
+                            y: (CGFloat(cur.y) - curDy) * CGFloat(phaseY)),
+                        transform: valueToPixelMatrix)
+                }else{
+                    lastPointDashCubicPath.addCurve(
+                        to: CGPoint(
+                            x: CGFloat(cur.x),
+                            y: CGFloat(cur.y) * CGFloat(phaseY)),
+                        control1: CGPoint(
+                            x: CGFloat(prev.x) + prevDx,
+                            y: (CGFloat(prev.y) + prevDy) * CGFloat(phaseY)),
+                        control2: CGPoint(
+                            x: CGFloat(cur.x) - curDx,
+                            y: (CGFloat(cur.y) - curDy) * CGFloat(phaseY)),
+                        transform: valueToPixelMatrix)
+                    cubicPath.addCurve(
+                        to: CGPoint(
+                            x: CGFloat(cur.x),
+                            y: CGFloat(cur.y) * CGFloat(phaseY)),
+                        control1: CGPoint(
+                            x: CGFloat(prev.x) + prevDx,
+                            y: (CGFloat(prev.y) + prevDy) * CGFloat(phaseY)),
+                        control2: CGPoint(
+                            x: CGFloat(cur.x) - curDx,
+                            y: (CGFloat(cur.y) - curDy) * CGFloat(phaseY)),
+                        transform: valueToPixelMatrix)
+                }
             }
         }
         
@@ -289,8 +324,8 @@ open class LineChartRenderer: LineRadarRenderer
         if dataSet.isDrawFilledEnabled
         {
             // Copy this path because we make changes to it
-            let fillPath = cubicPath.mutableCopy()
-            
+            let fillPath = isDrawLastPointDashPath ? lastPointDashCubicPath.mutableCopy() :   cubicPath.mutableCopy()
+
             drawCubicFill(context: context, dataSet: dataSet, spline: fillPath!, matrix: valueToPixelMatrix, bounds: _xBounds)
         }
 
@@ -301,6 +336,10 @@ open class LineChartRenderer: LineRadarRenderer
         else
         {
             drawLine(context: context, spline: cubicPath, drawingColor: drawingColor)
+            if isDrawLastPointDashPath{
+                context.setLineDash(phase: 0.0, lengths: [5, 2.5])
+                drawLine(context: context, spline: lastPointDashCubicPath, drawingColor: drawingColor)
+            }            
         }
     }
     
