@@ -104,6 +104,7 @@ class LineChart1ViewController: DemoBaseViewController {
         sliderX.value = 45
         sliderY.value = 100
         slidersValueChanged(nil)
+        
 
         chartView.animate(xAxisDuration: 2.5)
     }
@@ -114,7 +115,8 @@ class LineChart1ViewController: DemoBaseViewController {
             return
         }
 
-        self.setDataCount(Int(sliderX.value), range: UInt32(sliderY.value))
+//        self.setDataCount(Int(sliderX.value), range: UInt32(sliderY.value))
+        self.setDataCount(3, range: UInt32(sliderY.value))
     }
 
     func setDataCount(_ count: Int, range: UInt32) {
@@ -143,6 +145,7 @@ class LineChart1ViewController: DemoBaseViewController {
     }
 
     private func setup(_ dataSet: LineChartDataSet) {
+        dataSet.mode = .cubicBezier
         if dataSet.isDrawLineWithGradientEnabled {
             dataSet.lineDashLengths = nil
             dataSet.highlightLineDashLengths = nil

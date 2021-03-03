@@ -97,7 +97,7 @@ open class LineChartRenderer: LineRadarRenderer
                 drawMaxMarker(context, dataSet: set,lineColor: lineColor, textColor: textColor)
                 drawMinMarker(context, dataSet: set,lineColor: lineColor, textColor: textColor)
             }
-        }    
+        }
     }
     
     func drawMaxMarker(_ context: CGContext, dataSet: LineChartDataSet,lineColor: UIColor, textColor: UIColor){
@@ -210,7 +210,14 @@ open class LineChartRenderer: LineRadarRenderer
         
         let phaseY = animator.phaseY
         
+        //设置range，多画一个后面的点，方便做平滑动画
         _xBounds.set(chart: dataProvider, dataSet: dataSet, animator: animator)
+        let t = ceil(Double(_xBounds.max - _xBounds.min) * animator.phaseX)
+        _xBounds.range = Int(t)
+        //裁剪绘图区域，根据动画来
+        var clipRect = viewPortHandler.contentRect
+        clipRect.size.width = clipRect.width*CGFloat(animator.phaseX)
+        context.clip(to: clipRect)
         
         // get the color that is specified for this position from the DataSet
         let drawingColor = dataSet.colors.first!
