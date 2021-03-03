@@ -97,6 +97,9 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
     /// flag that indicates if a custom viewport offset has been set
     private var _customViewPortEnabled = false
     
+    @objc open var minMaxFlagLineColor = UIColor.blue
+    @objc open var minMaxFlagTextColor = UIColor.red
+    
     public override init(frame: CGRect)
     {
         super.init(frame: frame)
@@ -293,6 +296,11 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         drawDescription(in: context)
         
         drawMarkers(context: context)
+        
+        if isShowMaxMinFlag{
+            guard  let linerenderer = renderer as? LineChartRenderer else { return }
+            linerenderer.drawMinMaxFlag(context: context, lineColor: self.minMaxFlagLineColor, textColor: self.minMaxFlagTextColor)            
+        }
     }
     
     private var _autoScaleLastLowestVisibleX: Double?

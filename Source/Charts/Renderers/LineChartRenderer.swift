@@ -91,6 +91,117 @@ open class LineChartRenderer: LineRadarRenderer
         context.strokePath()
     }
     
+    func drawMinMaxFlag( context: CGContext, lineColor: UIColor, textColor: UIColor){
+        if let lineDataSet = dataProvider?.data?.dataSets as? [LineChartDataSet]{
+            for set in lineDataSet{
+                drawMaxMarker(context, dataSet: set,lineColor: lineColor, textColor: textColor)
+                drawMinMarker(context, dataSet: set,lineColor: lineColor, textColor: textColor)
+            }
+        }    
+    }
+    
+    func drawMaxMarker(_ context: CGContext, dataSet: LineChartDataSet,lineColor: UIColor, textColor: UIColor){
+        guard animator.phaseX >= 1 else { return }
+        
+        if dataSet.count < 1
+        {
+            return
+        }
+        var maxYValue = -Double.greatestFiniteMagnitude
+        var maxEntry: ChartDataEntry? = nil
+        for i in _xBounds{
+            let entry = dataSet.entryForIndex(i)
+            if entry == nil{
+                continue
+            }
+            if entry!.y >= maxYValue{
+                maxYValue = entry!.y
+                maxEntry = entry!
+            }
+        }
+        
+        if maxEntry == nil{
+            return
+        }
+        
+        let dataStr = "Max:\(maxEntry!.y)"
+        self.drawPointMarker(dataSet, context: context, entry: maxEntry!, text: dataStr, startPtOffsetY: -1.50, endPtOffsetY: -5,lineColor: lineColor, textColor: textColor)
+    }
+    
+    func drawMinMarker(_ context: CGContext, dataSet: LineChartDataSet,lineColor: UIColor, textColor: UIColor){
+        guard animator.phaseX >= 1 else { return }
+        
+        if dataSet.count < 1
+        {
+            return
+        }
+        var minYValue = Double.greatestFiniteMagnitude
+        var minEntry: ChartDataEntry? = nil
+        for i in _xBounds{
+            let entry = dataSet.entryForIndex(i)
+            if entry == nil{
+                continue
+            }
+            if entry!.y < minYValue{
+                minYValue = entry!.y
+                minEntry = entry!
+            }
+        }
+        
+        if minEntry == nil{
+            return
+        }
+        
+        let dataStr = "Min:\(minEntry!.y)"
+        self.drawPointMarker(dataSet, context: context, entry: minEntry!, text: dataStr, startPtOffsetY: 1.5, endPtOffsetY: 5,lineColor: lineColor, textColor: textColor)
+    }
+    
+    func drawPointMarker(_ dataSet: LineChartDataSet, context: CGContext, entry: ChartDataEntry, text:String, startPtOffsetY: CGFloat, endPtOffsetY: CGFloat,lineColor: UIColor, textColor: UIColor){
+        guard let dataProvider = dataProvider else { return }
+        let trans = dataProvider.getTransformer(forAxis: dataSet.axisDependency)
+        var vals = CGPoint(x: CGFloat(entry.x), y: CGFloat(entry.y))
+        trans.pointValueToPixel(&vals)
+        
+        let startPt = CGPoint(x: vals.x, y: vals.y+startPtOffsetY)
+        let lineLength: CGFloat  = 25
+        var endPt: CGPoint
+        
+        var toLeft = false,toTop = false
+        
+        var _drawAttributes = [NSAttributedString.Key : Any]()
+        _drawAttributes[.font] = UIFont.systemFont(ofSize: 12)
+//        _drawAttributes[.paragraphStyle] = _paragraphStyle
+        _drawAttributes[.foregroundColor] = textColor
+        let textSize = getLabelSize(text, attributes: _drawAttributes)
+        
+        if (viewPortHandler.isInBounds(x: startPt.x+lineLength+textSize.width, y: startPt.y - startPtOffsetY)){
+            toLeft = true
+        }
+        if (viewPortHandler.isInBounds(x: startPt.x, y: startPt.y + endPtOffsetY)){
+            toTop = true
+        }
+        
+        endPt = CGPoint(x: startPt.x + lineLength * (toLeft ? 1 : -1), y: startPt.y  + (toTop ? endPtOffsetY : -endPtOffsetY))
+
+        //draw line
+        context.setStrokeColor(lineColor.cgColor)
+        context.setLineWidth(1)
+
+        context.beginPath()
+        context.move(to: startPt)
+        context.addLine(to: endPt)
+        context.strokePath()
+        
+        //draw text
+        text.draw(in: CGRect(x: endPt.x - (toLeft ? 0 : textSize.width), y: endPt.y-textSize.height/2, width: textSize.width, height: textSize.height), withAttributes: _drawAttributes)
+    }
+    
+    @objc open func getLabelSize(_ label: String, attributes: [NSAttributedString.Key : Any] ) -> CGSize
+    {
+        let _labelSize = label.size(withAttributes: attributes) ?? CGSize.zero
+        return _labelSize
+    }
+    
     @objc open func drawCubicBezier(context: CGContext, dataSet: LineChartDataSetProtocol)
     {
         guard let dataProvider = dataProvider else { return }

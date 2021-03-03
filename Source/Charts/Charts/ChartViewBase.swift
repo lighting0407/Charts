@@ -135,6 +135,8 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// The marker that is displayed when a value is clicked on the chart
     @objc open var marker: Marker?
 
+    @objc open var isShowMaxMinFlag: Bool = true
+    
     /// An extra offset to be appended to the viewport's top
     @objc open var extraTopOffset: CGFloat = 0.0
     
@@ -484,7 +486,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
 
     /// draws all MarkerViews on the highlighted positions
     internal func drawMarkers(context: CGContext)
-    {
+    {       
         // if there is no marker view or drawing marker is disabled
         guard
             let marker = marker,
@@ -514,6 +516,9 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             marker.draw(context: context, point: pos)
         }
     }
+    
+    
+
     
     /// - Returns: The actual position in pixels of the MarkerView for the given Entry in the given DataSet.
     @objc open func getMarkerPosition(highlight: Highlight) -> CGPoint

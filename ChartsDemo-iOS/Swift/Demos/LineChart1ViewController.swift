@@ -45,6 +45,12 @@ class LineChart1ViewController: DemoBaseViewController {
         chartView.dragEnabled = true
         chartView.setScaleEnabled(true)
         chartView.pinchZoomEnabled = true
+        
+        //自动缩放
+        chartView.scaleXEnabled = false
+        chartView.scaleYEnabled = false
+        chartView.autoScaleMinMaxEnabled = true
+        chartView.minMaxFlagLineColor = UIColor.green
 
         // x-axis limit line
         let llXAxis = ChartLimitLine(limit: 10, label: "Index 10")
@@ -78,6 +84,8 @@ class LineChart1ViewController: DemoBaseViewController {
         leftAxis.drawLimitLinesBehindDataEnabled = true
 
         chartView.rightAxis.enabled = false
+        leftAxis.resetCustomAxisMin()
+        leftAxis.resetCustomAxisMax()
 
         //[_chartView.viewPortHandler setMaximumScaleY: 2.f];
         //[_chartView.viewPortHandler setMaximumScaleX: 2.f];

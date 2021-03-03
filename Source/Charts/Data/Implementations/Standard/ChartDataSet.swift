@@ -100,8 +100,10 @@ open class ChartDataSet: ChartBaseDataSet
 
         guard !isEmpty else { return }
         
-        let indexFrom = entryIndex(x: fromX, closestToY: .nan, rounding: .down)
-        let indexTo = entryIndex(x: toX, closestToY: .nan, rounding: .up)
+//        let indexFrom = entryIndex(x: fromX, closestToY: .nan, rounding: .down)
+//        let indexTo = entryIndex(x: toX, closestToY: .nan, rounding: .up)
+        let indexFrom = entryIndex(x: fromX, closestToY: .nan, rounding: .up)
+        let indexTo = entryIndex(x: toX, closestToY: .nan, rounding: .down)
         
         guard indexTo >= indexFrom else { return }
         // only recalculate y
