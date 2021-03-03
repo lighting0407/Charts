@@ -51,6 +51,7 @@ class LineChart1ViewController: DemoBaseViewController {
         chartView.scaleYEnabled = false
         chartView.autoScaleMinMaxEnabled = true
         chartView.minMaxFlagLineColor = UIColor.green
+        chartView.isShowMaxMinFlag = true
 
         // x-axis limit line
         let llXAxis = ChartLimitLine(limit: 10, label: "Index 10")

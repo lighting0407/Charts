@@ -135,7 +135,8 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// The marker that is displayed when a value is clicked on the chart
     @objc open var marker: Marker?
 
-    @objc open var isShowMaxMinFlag: Bool = true
+    //linechart里是否显示最大最小值标识
+    @objc open var isShowMaxMinFlag: Bool = false
     
     /// An extra offset to be appended to the viewport's top
     @objc open var extraTopOffset: CGFloat = 0.0
