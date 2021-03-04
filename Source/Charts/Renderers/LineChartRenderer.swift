@@ -71,13 +71,23 @@ open class LineChartRenderer: LineRadarRenderer
             drawLinear(context: context, dataSet: dataSet)
             
         case .cubicBezier:
-            drawCubicBezier(context: context, dataSet: dataSet)
+            var validateFlags = [Bool]()
+            if dataSet.isCheckStepCubicLine  {
+                drawStepCubicBezier(context: context, dataSet: dataSet)
+            }else{
+                drawCubicBezier(context: context, dataSet: dataSet)
+            }
+            
             
         case .horizontalBezier:
             drawHorizontalBezier(context: context, dataSet: dataSet)
         }
         
         context.restoreGState()
+    }
+    
+    private func getValidateList(_ dataSet: LineChartDataSetProtocol,  validateFlagList: inout [Bool])->Bool{
+        return false
     }
 
     private func drawLine(
@@ -142,9 +152,16 @@ open class LineChartRenderer: LineRadarRenderer
             if entry == nil{
                 continue
             }
-            if entry!.y < minYValue{
-                minYValue = entry!.y
-                minEntry = entry!
+            if dataSet.isCheckStepCubicLine{
+                if entry!.y < minYValue && entry!.y > dataSet.minValidateValue{
+                    minYValue = entry!.y
+                    minEntry = entry!
+                }
+            }else{
+                if entry!.y < minYValue{
+                    minYValue = entry!.y
+                    minEntry = entry!
+                }
             }
         }
         
@@ -343,6 +360,201 @@ open class LineChartRenderer: LineRadarRenderer
         }
     }
     
+    //检测数据分段画曲线
+    @objc open func drawStepCubicBezier(context: CGContext, dataSet: LineChartDataSetProtocol)
+    {
+        guard let dataProvider = dataProvider else { return }
+        
+        let trans = dataProvider.getTransformer(forAxis: dataSet.axisDependency)
+        
+        let phaseY = animator.phaseY
+        
+        //设置range，多画一个后面的点，方便做平滑动画
+        _xBounds.set(chart: dataProvider, dataSet: dataSet, animator: animator)
+        let t = ceil(Double(_xBounds.max - _xBounds.min) * animator.phaseX)
+        _xBounds.range = Int(t)
+        //裁剪绘图区域，根据动画来
+        var clipRect = viewPortHandler.contentRect
+        clipRect.size.width = clipRect.width*CGFloat(animator.phaseX)
+        context.clip(to: clipRect)
+        
+        //检查数据
+        guard _xBounds.range >= 1 else { return }
+        var bounds : [XBounds] = []
+        var tMin = -1//Double.greatestFiniteMagnitude
+        var tMax = -1//-Double.greatestFiniteMagnitude
+  
+        var j = _xBounds.min
+        while(j <= _xBounds.max){
+            if let entry = dataSet.entryForIndex(j){
+                if entry.y > dataSet.minValidateValue{
+                    tMin = j
+                    var hasEndIndex = false
+                    for s in _xBounds.dropFirst(tMin+1){
+                        if let entry2 = dataSet.entryForIndex(s){
+                            if entry2.y < dataSet.minValidateValue{
+                                tMax = s-1
+                                hasEndIndex = true
+                                break
+                            }
+                        }
+                    }
+                    if hasEndIndex{
+                        j = tMax
+                    }else{
+                        j = _xBounds.max
+                        tMax = j
+                    }
+                    //构建
+                    let b = XBounds()
+                    b.min = tMin
+                    b.max = tMax
+                    b.range = tMax - tMin
+                    bounds.append(b)
+                }
+            }
+            j += 1
+        }
+        
+   
+        print("bounds:\(bounds)")
+        for bound in bounds{
+            self.drawPartStepCubicBezier(context: context, dataSet: dataSet, bound: bound)
+        }
+    }
+    
+    open func drawPartStepCubicBezier(context: CGContext, dataSet: LineChartDataSetProtocol, bound: XBounds){
+        guard let dataProvider = dataProvider else { return }
+        
+        let trans = dataProvider.getTransformer(forAxis: dataSet.axisDependency)
+        
+        let phaseY = animator.phaseY
+        
+        // get the color that is specified for this position from the DataSet
+        let drawingColor = dataSet.colors.first!
+        
+        let intensity = dataSet.cubicIntensity
+        
+        // the path for the cubic-spline
+        let cubicPath = CGMutablePath()
+        let lastPointDashCubicPath = CGMutablePath()
+        var isDrawLastPointDashPath = false
+        
+        let valueToPixelMatrix = trans.valueToPixelMatrix
+        
+        if bound.range >= 1
+        {
+            var prevDx: CGFloat = 0.0
+            var prevDy: CGFloat = 0.0
+            var curDx: CGFloat = 0.0
+            var curDy: CGFloat = 0.0
+            
+            // Take an extra point from the left, and an extra from the right.
+            // That's because we need 4 points for a cubic bezier (cubic=4), otherwise we get lines moving and doing weird stuff on the edges of the chart.
+            // So in the starting `prev` and `cur`, go -2, -1
+            
+            let firstIndex = bound.min + 1
+            
+            var prevPrev: ChartDataEntry! = nil
+            let startMin = max(bound.min, 0)
+            var prev: ChartDataEntry! = dataSet.entryForIndex(max(firstIndex - 2, startMin))
+            var cur: ChartDataEntry! = dataSet.entryForIndex(max(firstIndex - 1, startMin))
+            var next: ChartDataEntry! = cur
+            var nextIndex: Int = -1
+            
+            if cur == nil { return }
+            
+            // let the spline start
+            cubicPath.move(to: CGPoint(x: CGFloat(cur.x), y: CGFloat(cur.y * phaseY)), transform: valueToPixelMatrix)
+            lastPointDashCubicPath.move(to: CGPoint(x: CGFloat(cur.x), y: CGFloat(cur.y * phaseY)), transform: valueToPixelMatrix)
+                        
+            let dataSet1 = dataSet as? LineChartDataSet
+            if dataSet1 != nil && dataSet1!.isDashLastPoint{
+                isDrawLastPointDashPath = true
+            }
+            
+            for j in bound.dropFirst()  // same as firstIndex
+            {
+                prevPrev = prev
+                prev = cur
+                cur = nextIndex == j ? next : dataSet.entryForIndex(j)
+                
+//                nextIndex = j + 1 < dataSet.entryCount ? j + 1 : j
+                nextIndex = j + 1 < bound.max ? j + 1 : j
+                next = dataSet.entryForIndex(nextIndex)
+                
+                if next == nil { break }
+                
+                prevDx = CGFloat(cur.x - prevPrev.x) * intensity
+                prevDy = CGFloat(cur.y - prevPrev.y) * intensity
+                curDx = CGFloat(next.x - prev.x) * intensity
+                curDy = CGFloat(next.y - prev.y) * intensity
+                
+
+                if dataSet.lineDashLengths == nil && isDrawLastPointDashPath && j == _xBounds.max  {
+                    //最后一个点虚线
+                    lastPointDashCubicPath.addCurve(
+                        to: CGPoint(
+                            x: CGFloat(cur.x),
+                            y: CGFloat(cur.y) * CGFloat(phaseY)),
+                        control1: CGPoint(
+                            x: CGFloat(prev.x) + prevDx,
+                            y: (CGFloat(prev.y) + prevDy) * CGFloat(phaseY)),
+                        control2: CGPoint(
+                            x: CGFloat(cur.x) - curDx,
+                            y: (CGFloat(cur.y) - curDy) * CGFloat(phaseY)),
+                        transform: valueToPixelMatrix)
+                }else{
+                    lastPointDashCubicPath.addCurve(
+                        to: CGPoint(
+                            x: CGFloat(cur.x),
+                            y: CGFloat(cur.y) * CGFloat(phaseY)),
+                        control1: CGPoint(
+                            x: CGFloat(prev.x) + prevDx,
+                            y: (CGFloat(prev.y) + prevDy) * CGFloat(phaseY)),
+                        control2: CGPoint(
+                            x: CGFloat(cur.x) - curDx,
+                            y: (CGFloat(cur.y) - curDy) * CGFloat(phaseY)),
+                        transform: valueToPixelMatrix)
+                    cubicPath.addCurve(
+                        to: CGPoint(
+                            x: CGFloat(cur.x),
+                            y: CGFloat(cur.y) * CGFloat(phaseY)),
+                        control1: CGPoint(
+                            x: CGFloat(prev.x) + prevDx,
+                            y: (CGFloat(prev.y) + prevDy) * CGFloat(phaseY)),
+                        control2: CGPoint(
+                            x: CGFloat(cur.x) - curDx,
+                            y: (CGFloat(cur.y) - curDy) * CGFloat(phaseY)),
+                        transform: valueToPixelMatrix)
+                }
+            }
+        }
+        
+        context.saveGState()
+        defer { context.restoreGState() }
+
+        if dataSet.isDrawFilledEnabled
+        {
+            // Copy this path because we make changes to it
+            let fillPath = isDrawLastPointDashPath ? lastPointDashCubicPath.mutableCopy() :   cubicPath.mutableCopy()
+
+            drawCubicFill(context: context, dataSet: dataSet, spline: fillPath!, matrix: valueToPixelMatrix, bounds: bound)
+        }
+
+        if dataSet.isDrawLineWithGradientEnabled
+        {
+            drawGradientLine(context: context, dataSet: dataSet, spline: cubicPath, matrix: valueToPixelMatrix)
+        }
+        else
+        {
+            drawLine(context: context, spline: cubicPath, drawingColor: drawingColor)
+            if isDrawLastPointDashPath{
+                context.setLineDash(phase: 0.0, lengths: [5, 2.5])
+                drawLine(context: context, spline: lastPointDashCubicPath, drawingColor: drawingColor)
+            }
+        }
+    }
     @objc open func drawHorizontalBezier(context: CGContext, dataSet: LineChartDataSetProtocol)
     {
         guard let dataProvider = dataProvider else { return }

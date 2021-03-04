@@ -160,6 +160,9 @@ open class LineChartDataSet: LineRadarChartDataSet, LineChartDataSetProtocol
     /// **default**: false
     open var isDashLastPoint = false
     
+    open var isCheckStepCubicLine = false
+    open var minValidateValue: Double = -0.5
+    
     // MARK: NSCopying
     
     open override func copy(with zone: NSZone? = nil) -> Any
@@ -178,6 +181,8 @@ open class LineChartDataSet: LineRadarChartDataSet, LineChartDataSetProtocol
         copy.mode = mode
         copy._fillFormatter = _fillFormatter
         copy.isDashLastPoint = isDashLastPoint
+        copy.isCheckStepCubicLine = isCheckStepCubicLine
+        copy.minValidateValue = minValidateValue
         return copy
     }
 }

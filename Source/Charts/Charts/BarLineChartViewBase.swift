@@ -281,9 +281,9 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         {
             context.saveGState()
             context.clip(to: viewPortHandler.contentRect)
-            
+
             renderer.drawValues(context: context)
-            
+
             context.restoreGState()
         }
         else

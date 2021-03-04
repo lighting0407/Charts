@@ -83,4 +83,10 @@ public protocol LineChartDataSetProtocol: LineRadarChartDataSetProtocol
     
     /// Sets a custom FillFormatterProtocol to the chart that handles the position of the filled-line for each DataSet. Set this to null to use the default logic.
     var fillFormatter: FillFormatter? { get set }
+    
+    //是否检查数据断线，如数据段中存在无效值时，将曲线分成2段
+    var isCheckStepCubicLine : Bool { get set}
+    
+    //Y轴最小的有效值
+    var minValidateValue : Double { get set}
 }

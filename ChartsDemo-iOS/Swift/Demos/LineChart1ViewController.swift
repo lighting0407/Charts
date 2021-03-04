@@ -19,6 +19,19 @@ class LineChart1ViewController: DemoBaseViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let demoArr = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+         for item in demoArr.dropFirst(1) {
+              print("item: \(item)")
+         }
+        print("------")
+        for item in demoArr.dropFirst(0) {
+             print("item: \(item)")
+        }
+        print("------")
+        for item in demoArr.dropFirst(3) {
+             print("item: \(item)")
+        }
 
         // Do any additional setup after loading the view.
         self.title = "Line Chart 1"
@@ -116,21 +129,30 @@ class LineChart1ViewController: DemoBaseViewController {
         }
 
 //        self.setDataCount(Int(sliderX.value), range: UInt32(sliderY.value))
-        self.setDataCount(3, range: UInt32(sliderY.value))
+//        self.setDataCount(3, range: UInt32(sliderY.value))
+        self.setDataCount(10, range: UInt32(sliderY.value))
     }
 
     func setDataCount(_ count: Int, range: UInt32) {
+        let v1: [Double] = [-1,1,2,3,-1,-1,4,5,6,7]
         let values = (0..<count).map { (i) -> ChartDataEntry in
-            let val = Double(arc4random_uniform(range) + 3)
+//            let val = Double(arc4random_uniform(range) + 3)
+            let  val = v1[i % v1.count]
+            
             return ChartDataEntry(x: Double(i), y: val, icon: #imageLiteral(resourceName: "icon"))
         }
+//        let values = (0..<count).map { (i) -> ChartDataEntry in
+//            let val = Double(arc4random_uniform(range) + 3)
+//            return ChartDataEntry(x: Double(i), y: val, icon: #imageLiteral(resourceName: "icon"))
+//        }
+        
 
         let set1 = LineChartDataSet(entries: values, label: "DataSet 1")
         set1.drawIconsEnabled = false
         setup(set1)
 
-        let value = ChartDataEntry(x: Double(3), y: 3)
-        set1.addEntryOrdered(value)
+//        let value = ChartDataEntry(x: Double(3), y: 3)
+//        set1.addEntryOrdered(value)
         let gradientColors = [ChartColorTemplates.colorFromString("#00ff0000").cgColor,
                               ChartColorTemplates.colorFromString("#ffff0000").cgColor]
         let gradient = CGGradient(colorsSpace: nil, colors: gradientColors as CFArray, locations: nil)!
@@ -147,6 +169,9 @@ class LineChart1ViewController: DemoBaseViewController {
     private func setup(_ dataSet: LineChartDataSet) {
         dataSet.mode = .cubicBezier
         dataSet.isDashLastPoint = true
+        dataSet.isCheckStepCubicLine = true
+        dataSet.drawValuesEnabled = false
+        dataSet.drawCirclesEnabled = false
 //        dataSet.is
         if dataSet.isDrawLineWithGradientEnabled {
             dataSet.lineDashLengths = nil
