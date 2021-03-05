@@ -9,29 +9,168 @@
 import UIKit
 import Charts
 
+class UDLineChartV2 : LineChartView{
+    
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        initView()
+    }
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        initView()
+    }
+    
+    func initXAxis(){
+        let xAxis = self.xAxis
+        xAxis.drawLabelsEnabled = true
+        xAxis.drawAxisLineEnabled = true
+        xAxis.axisLineWidth = 0.5
+        xAxis.drawGridLinesEnabled = false//是否绘制坐标轴的刻度线
+        xAxis.avoidFirstLastClippingEnabled = true//设置首尾的值是否自动调整，避免被遮挡
+        xAxis.labelPosition = .bottom
+        xAxis.axisLineColor = .red //X轴颜色
+        xAxis.labelTextColor = UIColor.red.withAlphaComponent(0.5) //X轴数据颜色
+//        xAxis.labelCount = 4
+        xAxis.setLabelCount(4, force: true)
+        
+        xAxis.valueFormatter = DateValueFormatter();
+    }
+    
+    func initYAxis(){
+        self.rightAxis.enabled = false
+        
+        let leftAxis = self.leftAxis
+        //重置最大最小值，autoscale使用
+        leftAxis.resetCustomAxisMin()
+        leftAxis.resetCustomAxisMax()
+        
+        leftAxis.drawGridLinesEnabled = true //是否显示Y坐标轴上的刻度横线，默认是TRUE
+        leftAxis.drawAxisLineEnabled = true //是否绘制坐标轴线，即含有坐标的那条线，默认TRUE
+        leftAxis.drawZeroLineEnabled = false //是否绘制0刻度线
+        leftAxis.drawLabelsEnabled = true //是否显示Y轴刻度
+        leftAxis.gridLineDashLengths = nil
+        leftAxis.labelPosition = .outsideChart
+        leftAxis.labelCount = 4
+//        leftAxis.spaceBottom = 1
+//        leftAxis.spaceTop = 1
+        leftAxis.inverted = false
+        leftAxis.axisLineWidth = 0.5
+        leftAxis.gridLineWidth = 0.5
+        leftAxis.drawTopYLabelEntryEnabled = true
+        
+        leftAxis.gridColor = .green//Y轴刻度线颜色
+        leftAxis.axisLineColor = .blue//Y轴颜色
+        leftAxis.labelTextColor = .blue//Y轴刻度颜色
+
+//        leftAxis.axisMaximum = 200
+//        leftAxis.axisMinimum = -50
+    }
+    func setupChartView(){
+        self.chartDescription.enabled = false
+        self.dragEnabled = true
+        self.setScaleEnabled(true)
+        self.pinchZoomEnabled = true
+        
+        //自动缩放
+        self.scaleXEnabled = false
+        self.scaleYEnabled = false
+        self.autoScaleMinMaxEnabled = true
+        self.minMaxFlagLineColor = UIColor.green
+        self.isShowMaxMinFlag = true
+        
+        //x轴
+        initXAxis()
+        //y轴
+        initYAxis()
+        //图例
+        self.legend.enabled = false
+    }
+    
+    func initView(){
+        initXAxis()
+        initYAxis()
+    }
+}
+
+
 class LineChart1ViewController: DemoBaseViewController {
 
-    @IBOutlet var chartView: LineChartView!
+    @IBOutlet var chartView: UDLineChartV2!//LineChartView!
     @IBOutlet var sliderX: UISlider!
     @IBOutlet var sliderY: UISlider!
     @IBOutlet var sliderTextX: UITextField!
     @IBOutlet var sliderTextY: UITextField!
 
+    func initXAxis(){
+        let xAxis = chartView.xAxis
+        xAxis.drawLabelsEnabled = true
+        xAxis.drawAxisLineEnabled = true
+        xAxis.axisLineWidth = 0.5
+        xAxis.drawGridLinesEnabled = false//是否绘制坐标轴的刻度线
+        xAxis.avoidFirstLastClippingEnabled = true//设置首尾的值是否自动调整，避免被遮挡
+        xAxis.labelPosition = .bottom
+        xAxis.axisLineColor = .red //X轴颜色
+        xAxis.labelTextColor = UIColor.red.withAlphaComponent(0.5) //X轴数据颜色
+//        xAxis.labelCount = 4
+        xAxis.setLabelCount(4, force: true)
+        
+        xAxis.valueFormatter = DateValueFormatter();
+    }
+    
+    func initYAxis(){
+        chartView.rightAxis.enabled = false
+        
+        let leftAxis = chartView.leftAxis
+        //重置最大最小值，autoscale使用
+        leftAxis.resetCustomAxisMin()
+        leftAxis.resetCustomAxisMax()
+        
+        leftAxis.drawGridLinesEnabled = true //是否显示Y坐标轴上的刻度横线，默认是TRUE
+        leftAxis.drawAxisLineEnabled = true //是否绘制坐标轴线，即含有坐标的那条线，默认TRUE
+        leftAxis.drawZeroLineEnabled = false //是否绘制0刻度线
+        leftAxis.drawLabelsEnabled = true //是否显示Y轴刻度
+        leftAxis.gridLineDashLengths = nil
+        leftAxis.labelPosition = .outsideChart
+        leftAxis.labelCount = 4
+//        leftAxis.spaceBottom = 1
+//        leftAxis.spaceTop = 1
+        leftAxis.inverted = false
+        leftAxis.axisLineWidth = 0.5
+        leftAxis.gridLineWidth = 0.5
+        leftAxis.drawTopYLabelEntryEnabled = true
+        
+        leftAxis.gridColor = .green//Y轴刻度线颜色
+        leftAxis.axisLineColor = .blue//Y轴颜色
+        leftAxis.labelTextColor = .blue//Y轴刻度颜色
+
+//        leftAxis.axisMaximum = 200
+//        leftAxis.axisMinimum = -50
+    }
+    func setupChartView(){
+        chartView.chartDescription.enabled = false
+        chartView.dragEnabled = true
+        chartView.setScaleEnabled(true)
+        chartView.pinchZoomEnabled = true
+        
+        //自动缩放
+        chartView.scaleXEnabled = false
+        chartView.scaleYEnabled = false
+        chartView.autoScaleMinMaxEnabled = true
+        chartView.minMaxFlagLineColor = UIColor.green
+        chartView.isShowMaxMinFlag = true
+        
+        //x轴
+        initXAxis()
+        //y轴
+        initYAxis()
+        //图例
+        chartView.legend.enabled = false
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let demoArr = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
-         for item in demoArr.dropFirst(1) {
-              print("item: \(item)")
-         }
-        print("------")
-        for item in demoArr.dropFirst(0) {
-             print("item: \(item)")
-        }
-        print("------")
-        for item in demoArr.dropFirst(3) {
-             print("item: \(item)")
-        }
 
         // Do any additional setup after loading the view.
         self.title = "Line Chart 1"
@@ -53,53 +192,42 @@ class LineChart1ViewController: DemoBaseViewController {
                         .toggleData]
 
         chartView.delegate = self
-
-        chartView.chartDescription.enabled = false
-        chartView.dragEnabled = true
-        chartView.setScaleEnabled(true)
-        chartView.pinchZoomEnabled = true
-        
-        //自动缩放
-        chartView.scaleXEnabled = false
-        chartView.scaleYEnabled = false
-        chartView.autoScaleMinMaxEnabled = true
-        chartView.minMaxFlagLineColor = UIColor.green
-        chartView.isShowMaxMinFlag = true
+//        self.setupChartView()
 
         // x-axis limit line
-        let llXAxis = ChartLimitLine(limit: 10, label: "Index 10")
-        llXAxis.lineWidth = 4
-        llXAxis.lineDashLengths = [10, 10, 0]
-        llXAxis.labelPosition = .rightBottom
-        llXAxis.valueFont = .systemFont(ofSize: 10)
+//        let llXAxis = ChartLimitLine(limit: 10, label: "Index 10")
+//        llXAxis.lineWidth = 4
+//        llXAxis.lineDashLengths = [10, 10, 0]
+//        llXAxis.labelPosition = .rightBottom
+//        llXAxis.valueFont = .systemFont(ofSize: 10)
+//
+//        chartView.xAxis.gridLineDashLengths = [10, 10]
+//        chartView.xAxis.gridLineDashPhase = 0
+//
+//        let ll1 = ChartLimitLine(limit: 150, label: "Upper Limit")
+//        ll1.lineWidth = 4
+//        ll1.lineDashLengths = [5, 5]
+//        ll1.labelPosition = .rightTop
+//        ll1.valueFont = .systemFont(ofSize: 10)
+//
+//        let ll2 = ChartLimitLine(limit: -30, label: "Lower Limit")
+//        ll2.lineWidth = 4
+//        ll2.lineDashLengths = [5,5]
+//        ll2.labelPosition = .rightBottom
+//        ll2.valueFont = .systemFont(ofSize: 10)
 
-        chartView.xAxis.gridLineDashLengths = [10, 10]
-        chartView.xAxis.gridLineDashPhase = 0
-
-        let ll1 = ChartLimitLine(limit: 150, label: "Upper Limit")
-        ll1.lineWidth = 4
-        ll1.lineDashLengths = [5, 5]
-        ll1.labelPosition = .rightTop
-        ll1.valueFont = .systemFont(ofSize: 10)
-
-        let ll2 = ChartLimitLine(limit: -30, label: "Lower Limit")
-        ll2.lineWidth = 4
-        ll2.lineDashLengths = [5,5]
-        ll2.labelPosition = .rightBottom
-        ll2.valueFont = .systemFont(ofSize: 10)
-
-        let leftAxis = chartView.leftAxis
-        leftAxis.removeAllLimitLines()
-        leftAxis.addLimitLine(ll1)
-        leftAxis.addLimitLine(ll2)
-        leftAxis.axisMaximum = 200
-        leftAxis.axisMinimum = -50
-        leftAxis.gridLineDashLengths = [5, 5]
-        leftAxis.drawLimitLinesBehindDataEnabled = true
-
-        chartView.rightAxis.enabled = false
-        leftAxis.resetCustomAxisMin()
-        leftAxis.resetCustomAxisMax()
+//        let leftAxis = chartView.leftAxis
+//        leftAxis.removeAllLimitLines()
+//        leftAxis.addLimitLine(ll1)
+//        leftAxis.addLimitLine(ll2)
+//        leftAxis.axisMaximum = 200
+//        leftAxis.axisMinimum = -50
+//        leftAxis.gridLineDashLengths = [5, 5]
+//        leftAxis.drawLimitLinesBehindDataEnabled = true
+//
+//        chartView.rightAxis.enabled = false
+//        leftAxis.resetCustomAxisMin()
+//        leftAxis.resetCustomAxisMax()
 
         //[_chartView.viewPortHandler setMaximumScaleY: 2.f];
         //[_chartView.viewPortHandler setMaximumScaleX: 2.f];
@@ -111,8 +239,8 @@ class LineChart1ViewController: DemoBaseViewController {
         marker.chartView = chartView
         marker.minimumSize = CGSize(width: 80, height: 40)
         chartView.marker = marker
-
-        chartView.legend.form = .line
+//
+//        chartView.legend.form = .line
 
         sliderX.value = 45
         sliderY.value = 100
@@ -129,17 +257,19 @@ class LineChart1ViewController: DemoBaseViewController {
         }
 
 //        self.setDataCount(Int(sliderX.value), range: UInt32(sliderY.value))
-//        self.setDataCount(3, range: UInt32(sliderY.value))
-        self.setDataCount(10, range: UInt32(sliderY.value))
+        self.setDataCount(6, range: UInt32(sliderY.value))
+//        self.setDataCount(10, range: UInt32(sliderY.value))
     }
 
     func setDataCount(_ count: Int, range: UInt32) {
-        let v1: [Double] = [-1,1,2,3,-1,-1,4,5,6,7]
+        let v1: [Double] = [1,5,14,8,7,2]//[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]// [-1,1,2,3,-1,-1,4,5,6,7]
+        let date: Double = 1612915200
         let values = (0..<count).map { (i) -> ChartDataEntry in
 //            let val = Double(arc4random_uniform(range) + 3)
             let  val = v1[i % v1.count]
-            
-            return ChartDataEntry(x: Double(i), y: val, icon: #imageLiteral(resourceName: "icon"))
+            let d = date + Double(i*60*60*24)
+            return ChartDataEntry(x: d, y: val, icon: #imageLiteral(resourceName: "icon"))
+//            return ChartDataEntry(x: Double(i), y: val, icon: #imageLiteral(resourceName: "icon"))
         }
 //        let values = (0..<count).map { (i) -> ChartDataEntry in
 //            let val = Double(arc4random_uniform(range) + 3)
@@ -153,12 +283,19 @@ class LineChart1ViewController: DemoBaseViewController {
 
 //        let value = ChartDataEntry(x: Double(3), y: 3)
 //        set1.addEntryOrdered(value)
-        let gradientColors = [ChartColorTemplates.colorFromString("#00ff0000").cgColor,
-                              ChartColorTemplates.colorFromString("#ffff0000").cgColor]
+        let gcolor = UIColor(red: 0.139412, green: 0.772745, blue: 0.780196, alpha: 1)
+        let gradientColors = [gcolor.cgColor,
+                              gcolor.cgColor,
+                              gcolor.withAlphaComponent(0.9).cgColor,
+                              gcolor.withAlphaComponent(0.4).cgColor,
+                              gcolor.withAlphaComponent(0.1).cgColor,
+                              gcolor.withAlphaComponent(0).cgColor]
+//            [ChartColorTemplates.colorFromString("#00ff0000").cgColor,
+//                              ChartColorTemplates.colorFromString("#ffff0000").cgColor]
         let gradient = CGGradient(colorsSpace: nil, colors: gradientColors as CFArray, locations: nil)!
 
-        set1.fillAlpha = 1
-        set1.fill = LinearGradientFill(gradient: gradient, angle: 90)
+        set1.fillAlpha = 0.06
+        set1.fill = LinearGradientFill(gradient: gradient, angle: 270)
         set1.drawFilledEnabled = true
 
         let data = LineChartData(dataSet: set1)
@@ -168,7 +305,7 @@ class LineChart1ViewController: DemoBaseViewController {
 
     private func setup(_ dataSet: LineChartDataSet) {
         dataSet.mode = .cubicBezier
-        dataSet.isDashLastPoint = true
+        dataSet.isDashLastPoint = false
         dataSet.isCheckStepCubicLine = true
         dataSet.drawValuesEnabled = false
         dataSet.drawCirclesEnabled = false

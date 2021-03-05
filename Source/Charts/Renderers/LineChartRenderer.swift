@@ -288,7 +288,7 @@ open class LineChartRenderer: LineRadarRenderer
                 next = dataSet.entryForIndex(nextIndex)
                 
                 if next == nil { break }
-                
+                print("nextIndex:",nextIndex)
                 prevDx = CGFloat(cur.x - prevPrev.x) * intensity
                 prevDy = CGFloat(cur.y - prevPrev.y) * intensity
                 curDx = CGFloat(next.x - prev.x) * intensity
@@ -354,7 +354,7 @@ open class LineChartRenderer: LineRadarRenderer
         {
             drawLine(context: context, spline: cubicPath, drawingColor: drawingColor)
             if isDrawLastPointDashPath{
-                context.setLineDash(phase: 0.0, lengths: [5, 2.5])
+                context.setLineDash(phase: 0.0, lengths: [2, 2])
                 drawLine(context: context, spline: lastPointDashCubicPath, drawingColor: drawingColor)
             }            
         }
@@ -416,8 +416,6 @@ open class LineChartRenderer: LineRadarRenderer
             j += 1
         }
         
-   
-        print("bounds:\(bounds)")
         for bound in bounds{
             self.drawPartStepCubicBezier(context: context, dataSet: dataSet, bound: bound)
         }
@@ -472,6 +470,7 @@ open class LineChartRenderer: LineRadarRenderer
             if dataSet1 != nil && dataSet1!.isDashLastPoint{
                 isDrawLastPointDashPath = true
             }
+            let entryCount = bound.range+1
             
             for j in bound.dropFirst()  // same as firstIndex
             {
@@ -480,11 +479,12 @@ open class LineChartRenderer: LineRadarRenderer
                 cur = nextIndex == j ? next : dataSet.entryForIndex(j)
                 
 //                nextIndex = j + 1 < dataSet.entryCount ? j + 1 : j
-                nextIndex = j + 1 < bound.max ? j + 1 : j
+                nextIndex = j + 1 < entryCount ? j + 1 : j
+                
                 next = dataSet.entryForIndex(nextIndex)
                 
                 if next == nil { break }
-                
+                print("nextIndex:",nextIndex)
                 prevDx = CGFloat(cur.x - prevPrev.x) * intensity
                 prevDy = CGFloat(cur.y - prevPrev.y) * intensity
                 curDx = CGFloat(next.x - prev.x) * intensity
@@ -550,7 +550,7 @@ open class LineChartRenderer: LineRadarRenderer
         {
             drawLine(context: context, spline: cubicPath, drawingColor: drawingColor)
             if isDrawLastPointDashPath{
-                context.setLineDash(phase: 0.0, lengths: [5, 2.5])
+                context.setLineDash(phase: 0.0, lengths: [2, 2])
                 drawLine(context: context, spline: lastPointDashCubicPath, drawingColor: drawingColor)
             }
         }
