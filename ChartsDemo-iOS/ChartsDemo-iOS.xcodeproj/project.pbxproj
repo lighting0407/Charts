@@ -135,6 +135,7 @@
 		5BEAED3C1ABC199F0013F194 /* ColoredLineChartViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5BEAED3A1ABC199F0013F194 /* ColoredLineChartViewController.xib */; };
 		5BEAED401ABC1AC60013F194 /* SinusBarChartViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5BEAED3E1ABC1AC60013F194 /* SinusBarChartViewController.m */; };
 		5BEAED411ABC1AC60013F194 /* SinusBarChartViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5BEAED3F1ABC1AC60013F194 /* SinusBarChartViewController.xib */; };
+		8BB85AB925F2128B00DCC494 /* HighLightMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB85AB825F2128B00DCC494 /* HighLightMarker.swift */; };
 		B64D06EB1FB199130067418D /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B64D06EA1FB199130067418D /* Launch Screen.storyboard */; };
 /* End PBXBuildFile section */
 
@@ -323,6 +324,7 @@
 		5BEAED3D1ABC1AC60013F194 /* SinusBarChartViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SinusBarChartViewController.h; sourceTree = "<group>"; };
 		5BEAED3E1ABC1AC60013F194 /* SinusBarChartViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SinusBarChartViewController.m; sourceTree = "<group>"; };
 		5BEAED3F1ABC1AC60013F194 /* SinusBarChartViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SinusBarChartViewController.xib; sourceTree = "<group>"; };
+		8BB85AB825F2128B00DCC494 /* HighLightMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighLightMarker.swift; sourceTree = "<group>"; };
 		B64D06EA1FB199130067418D /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -385,6 +387,7 @@
 				5BD47E5A1ABB0263008FCEC6 /* BalloonMarker.swift */,
 				225B363F1F6EBA180005B3D5 /* RadarMarkerView.swift */,
 				225B363D1F6EBA180005B3D5 /* XYMarkerView.swift */,
+				8BB85AB825F2128B00DCC494 /* HighLightMarker.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -817,6 +820,7 @@
 				225B36381F6EBA040005B3D5 /* IntAxisValueFormatter.swift in Sources */,
 				225B365D1F6EBA470005B3D5 /* HalfPieChartViewController.swift in Sources */,
 				225B36701F6EBA470005B3D5 /* SinusBarChartViewController.swift in Sources */,
+				8BB85AB925F2128B00DCC494 /* HighLightMarker.swift in Sources */,
 				225B36681F6EBA470005B3D5 /* AnotherBarChartViewController.swift in Sources */,
 				225B36621F6EBA470005B3D5 /* NegativeStackedBarChartViewController.swift in Sources */,
 				225B363B1F6EBA040005B3D5 /* LargeValueFormatter.swift in Sources */,

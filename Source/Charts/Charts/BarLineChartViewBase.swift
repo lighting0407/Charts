@@ -1959,4 +1959,11 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
 
         return min(xAxis._axisMaximum, Double(pt.x))
     }
+    
+    @objc open func getHighestVisibleCenterPoint() -> CGPoint{
+        let pt = getTransformer(forAxis: .left).valueForTouchPoint(x: viewPortHandler.contentRight, y: viewPortHandler.contentBottom)
+        let resultX = max(xAxis.axisMinimum, (Double)(pt.x))
+        let resultY = max(xAxis.axisMaximum, (Double)(pt.x))
+        return CGPoint(x: resultX, y: resultY)
+    }
 }

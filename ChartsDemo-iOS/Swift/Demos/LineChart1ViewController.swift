@@ -22,6 +22,7 @@ class UDLineChartV2 : LineChartView{
         initView()
     }
     
+    
     func initXAxis(){
         let xAxis = self.xAxis
         xAxis.drawLabelsEnabled = true
@@ -91,6 +92,71 @@ class UDLineChartV2 : LineChartView{
     func initView(){
         initXAxis()
         initYAxis()
+    }
+    
+    //scale function
+    var startVisibleRange: Double = 0
+    func doStartScale(){
+        if (startVisibleRange != 0 && self.data != nil && self.data!.entryCount > 0){
+            let scale = self.xAxis.axisRange / startVisibleRange
+            self.setVisibleXRangeMinimum(startVisibleRange)
+            print("startScale:\(scale)")
+            let maxPt : CGPoint = self.getHighestVisibleCenterPoint()
+            if let dataSet = data?.dataSet(at: 0){
+                let p1 = self.getTransformer(forAxis: dataSet.axisDependency).pixelForValues(x: (Double)(maxPt.x), y: (Double)(maxPt.y))
+                _ = self.viewPortHandler.resetZoom()
+                
+                zoom(scaleX: CGFloat(scale), scaleY: 1, x: p1.x, y: p1.y/2)
+            }
+        }
+    }
+    
+    //指定向左或向右移动一个X轴数据的间隔
+    func doTranslace(stepXCount: Int){
+        if (self.data != nil && self.data!.entryCount > 0){
+            var delta = getTwoPointDelta() * Double(stepXCount)
+            let newMatrix = viewPortHandler.touchMatrix.translatedBy(x: CGFloat(delta), y: 0)
+            viewPortHandler.refresh(newMatrix: newMatrix, chart: self, invalidate: true)
+        }
+    }
+    
+    func getTwoPointDelta() -> Double{
+        guard (self.data != nil && self.data!.entryCount > 0 ) else {
+            return 0
+        }
+        guard let dataSet = data?.dataSet(at: 0) else {return 0}
+        if dataSet.entryCount > 2{
+            let p1 = self.getTransformer(forAxis: dataSet.axisDependency).pixelForValues(x: (Double)(dataSet.entryForIndex(0)?.x ?? 0), y: (Double)(dataSet.entryForIndex(0)?.y ?? 0))
+            let p2 = self.getTransformer(forAxis: dataSet.axisDependency).pixelForValues(x: (Double)(dataSet.entryForIndex(1)?.x ?? 0), y: (Double)(dataSet.entryForIndex(1)?.y ?? 0))
+            return Double(p2.x - p1.x)
+        }
+        return 0
+    }
+    //放大一步
+    func doScaleX(stepXCount: Int){
+        let maxScaleX = viewPortHandler.maxScaleY
+        let minScaleX = viewPortHandler.minScaleX
+        
+        let oneStep = (maxScaleX - minScaleX) / 10
+        let matrix = viewPortHandler.touchMatrix
+        
+        let curX = matrix.a
+        var tartgetScale: CGFloat = 1
+        if stepXCount > 0{
+            tartgetScale = min(curX + oneStep*CGFloat(stepXCount), maxScaleX)
+        }else{
+            tartgetScale = max(curX - oneStep*CGFloat(stepXCount), minScaleX)
+        }
+        
+        let newMatrix = viewPortHandler.touchMatrix.scaledBy(x: tartgetScale, y: 1)
+        viewPortHandler.refresh(newMatrix: newMatrix, chart: self, invalidate: true)
+    }
+    
+    func setDataInSacelable(_ data: LineChartData){
+        //setMinOffsetL(50)
+        self.data = data
+        self.notifyDataSetChanged()
+        self.fitScreen()
     }
 }
 
@@ -194,51 +260,19 @@ class LineChart1ViewController: DemoBaseViewController {
         chartView.delegate = self
 //        self.setupChartView()
 
-        // x-axis limit line
-//        let llXAxis = ChartLimitLine(limit: 10, label: "Index 10")
-//        llXAxis.lineWidth = 4
-//        llXAxis.lineDashLengths = [10, 10, 0]
-//        llXAxis.labelPosition = .rightBottom
-//        llXAxis.valueFont = .systemFont(ofSize: 10)
-//
-//        chartView.xAxis.gridLineDashLengths = [10, 10]
-//        chartView.xAxis.gridLineDashPhase = 0
-//
-//        let ll1 = ChartLimitLine(limit: 150, label: "Upper Limit")
-//        ll1.lineWidth = 4
-//        ll1.lineDashLengths = [5, 5]
-//        ll1.labelPosition = .rightTop
-//        ll1.valueFont = .systemFont(ofSize: 10)
-//
-//        let ll2 = ChartLimitLine(limit: -30, label: "Lower Limit")
-//        ll2.lineWidth = 4
-//        ll2.lineDashLengths = [5,5]
-//        ll2.labelPosition = .rightBottom
-//        ll2.valueFont = .systemFont(ofSize: 10)
 
-//        let leftAxis = chartView.leftAxis
-//        leftAxis.removeAllLimitLines()
-//        leftAxis.addLimitLine(ll1)
-//        leftAxis.addLimitLine(ll2)
-//        leftAxis.axisMaximum = 200
-//        leftAxis.axisMinimum = -50
-//        leftAxis.gridLineDashLengths = [5, 5]
-//        leftAxis.drawLimitLinesBehindDataEnabled = true
-//
-//        chartView.rightAxis.enabled = false
-//        leftAxis.resetCustomAxisMin()
-//        leftAxis.resetCustomAxisMax()
-
-        //[_chartView.viewPortHandler setMaximumScaleY: 2.f];
-        //[_chartView.viewPortHandler setMaximumScaleX: 2.f];
-
-        let marker = BalloonMarker(color: UIColor(white: 180/255, alpha: 1),
-                                   font: .systemFont(ofSize: 12),
-                                   textColor: .white,
-                                   insets: UIEdgeInsets(top: 8, left: 8, bottom: 20, right: 8))
-        marker.chartView = chartView
-        marker.minimumSize = CGSize(width: 80, height: 40)
-        chartView.marker = marker
+//        let marker = BalloonMarker(color: UIColor(white: 180/255, alpha: 1),
+//                                   font: .systemFont(ofSize: 12),
+//                                   textColor: .white,
+//                                   insets: UIEdgeInsets(top: 8, left: 8, bottom: 20, right: 8))
+//        marker.chartView = chartView
+//        marker.minimumSize = CGSize(width: 80, height: 40)
+//        chartView.marker = marker
+        
+        let mr = HighlightMarker(color: UIColor.green, circleRadius: 3.0, shadowWidth: 3.0)
+        mr.chartView = chartView
+        mr.size = CGSize(width: 10, height: 10)
+        chartView.marker = mr
 //
 //        chartView.legend.form = .line
 
@@ -248,8 +282,20 @@ class LineChart1ViewController: DemoBaseViewController {
         
 
         chartView.animate(xAxisDuration: 2.5)
+        
     }
 
+    @objc override func chartValueSelected(_ chartView: ChartViewBase, entry: ChartDataEntry, highlight: Highlight){
+        print("entry:\(entry)")
+        guard let set = chartView.data![highlight.dataSetIndex] as? LineChartDataSetProtocol,
+              set.isHighlightEnabled
+        else { return }
+            
+        guard let e = set.entryForXValue(highlight.x, closestToY: highlight.y) else { return }
+         let e1 = set.entryIndex(entry: e)
+        
+        print("e1 :\(e1)")
+    }
     override func updateChartData() {
         if self.shouldHideData {
             chartView.data = nil
@@ -301,6 +347,14 @@ class LineChart1ViewController: DemoBaseViewController {
         let data = LineChartData(dataSet: set1)
 
         chartView.data = data
+        
+        if let dataSet = chartView.data?.dataSet(at: 0){
+            if dataSet.entryCount > 0{
+                let entry = dataSet.entryForIndex(dataSet.entryCount-1)
+                let h = Highlight(x: entry!.x, y: entry!.y, dataSetIndex: 0)
+                chartView.highlightValue(h, callDelegate: false)
+            }
+        }
     }
 
     private func setup(_ dataSet: LineChartDataSet) {
@@ -309,7 +363,10 @@ class LineChart1ViewController: DemoBaseViewController {
         dataSet.isCheckStepCubicLine = true
         dataSet.drawValuesEnabled = false
         dataSet.drawCirclesEnabled = false
-//        dataSet.is
+        dataSet.drawHorizontalHighlightIndicatorEnabled = false
+        dataSet.highlightColor = .red
+        
+//        dataSet.isss
         if dataSet.isDrawLineWithGradientEnabled {
             dataSet.lineDashLengths = nil
             dataSet.highlightLineDashLengths = nil
