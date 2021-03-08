@@ -81,6 +81,9 @@ class UDLineChartV2 : LineChartView{
         self.minMaxFlagLineColor = UIColor.green
         self.isShowMaxMinFlag = true
         
+        //长按手势
+        self.longPressEnabled = true
+        
         //x轴
         initXAxis()
         //y轴
@@ -92,12 +95,12 @@ class UDLineChartV2 : LineChartView{
     func initView(){
         initXAxis()
         initYAxis()
+        setupChartView()
     }
     
     //scale function
     var startVisibleRange: Double = 0
     
-//    func setStartVisibleRange
     func doStartScale(){
         if (startVisibleRange != 0 && self.data != nil && self.data!.entryCount > 0){
             let scale = self.xAxis.axisRange / startVisibleRange
@@ -176,6 +179,7 @@ class UDLineChartV2 : LineChartView{
             self.animate(xAxisDuration: animateTime)
         }
     }
+    
 }
 
 
@@ -244,6 +248,8 @@ class LineChart1ViewController: DemoBaseViewController {
         chartView.autoScaleMinMaxEnabled = true
         chartView.minMaxFlagLineColor = UIColor.green
         chartView.isShowMaxMinFlag = true
+        //长按手势
+        chartView.longPressEnabled = true
         
         //x轴
         initXAxis()
@@ -342,7 +348,7 @@ class LineChart1ViewController: DemoBaseViewController {
 //        }
         
 
-        chartView.startVisibleRange = 5*60*60*24//6.5*60*60*24
+//        chartView.startVisibleRange = 5*60*60*24//6.5*60*60*24
         
         let set1 = LineChartDataSet(entries: values, label: "DataSet 1")
         set1.drawIconsEnabled = false

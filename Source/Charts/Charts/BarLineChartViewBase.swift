@@ -93,6 +93,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
     internal var _pinchGestureRecognizer: NSUIPinchGestureRecognizer!
     #endif
     internal var _panGestureRecognizer: NSUIPanGestureRecognizer!
+    internal var _longGestureRecognizer: UILongPressGestureRecognizer!
     
     /// flag that indicates if a custom viewport offset has been set
     private var _customViewPortEnabled = false
@@ -144,6 +145,9 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
             self.addGestureRecognizer(_pinchGestureRecognizer)
             _pinchGestureRecognizer.isEnabled = _pinchZoomEnabled || _scaleXEnabled || _scaleYEnabled
         #endif
+        _longGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPressGestureRecognized(_:)))
+        self.addGestureRecognizer(_longGestureRecognizer)
+        _longGestureRecognizer.isEnabled = _longPressEnabled
     }
     
     open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?)
@@ -803,7 +807,45 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
             }
         }
     }
-    
+
+    @objc private func longPressGestureRecognized(_ recognizer: NSUIPanGestureRecognizer){
+
+        if recognizer.state == NSUIGestureRecognizerState.began
+        {
+            stopDeceleration()
+            
+            if data === nil || !self.longPressEnabled
+            {
+                return
+            }
+                      
+            _isDragging = false
+        }
+        else if recognizer.state == NSUIGestureRecognizerState.changed
+        {
+            if isHighlightPerDragEnabled
+            {
+                let h = getHighlightByTouchPoint(recognizer.location(in: self))
+                
+                let lastHighlighted = self.lastHighlighted
+                
+                if h != lastHighlighted
+                {
+                    self.lastHighlighted = h
+                    self.highlightValue(h, callDelegate: true)
+                }
+            }
+        }
+        else if recognizer.state == NSUIGestureRecognizerState.ended || recognizer.state == NSUIGestureRecognizerState.cancelled
+        {
+            if _outerScrollView !== nil
+            {
+                _outerScrollView?.nsuiIsScrollEnabled = true
+                _outerScrollView = nil
+            }
+        }
+    }
+
     private func performPanChange(translation: CGPoint) -> Bool
     {
         var translation = translation
@@ -1960,8 +2002,23 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         return min(xAxis._axisMaximum, Double(pt.x))
     }
     
+    //new add
+    private var _longPressEnabled = false
+    @objc open var longPressEnabled: Bool
+    {
+        get
+        {
+            return _longPressEnabled
+        }
+        set
+        {
+            _longPressEnabled = newValue
+            _longGestureRecognizer.isEnabled = _longPressEnabled
+        }
+    }
+    
     @objc open func getHighestVisibleCenterPoint() -> CGPoint{
-        let entry = self.data?.dataSet(at: 0)!.entryForIndex((self.data?.dataSet(at: 0)!.entryCount)!-1)
+//        let entry = self.data?.dataSet(at: 0)!.entryForIndex((self.data?.dataSet(at: 0)!.entryCount)!-1)
 //        getTransformer(forAxis: .left).pixelForValues(x: entry?.x, y: entry?.y)
         
         //

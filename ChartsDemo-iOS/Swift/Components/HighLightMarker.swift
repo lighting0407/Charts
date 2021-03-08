@@ -41,16 +41,14 @@ open class HighlightMarker: MarkerImage
         let sW: CGFloat = self.radius + self.shadowWidth
         context.addArc(center: point, radius: sW, startAngle: 0, endAngle: CGFloat(Double.pi * 2), clockwise: true)
         context.fillPath(using: .evenOdd)
-//        context.closePath()
-        
+
+
         context.setFillColor(color.cgColor)
         context.setStrokeColor(color.cgColor)
         context.beginPath()
         context.addArc(center: point, radius: self.radius, startAngle: 0, endAngle: CGFloat(Double.pi * 2), clockwise: true)
         context.fillPath(using: .evenOdd)
-        context.closePath()
-        
-        context.restoreGState()
+//        context.closePath()
 }
     
 //    open override func refreshContent(entry: ChartDataEntry, highlight: Highlight)
