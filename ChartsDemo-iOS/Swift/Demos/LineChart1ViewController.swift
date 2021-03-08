@@ -96,6 +96,8 @@ class UDLineChartV2 : LineChartView{
     
     //scale function
     var startVisibleRange: Double = 0
+    
+//    func setStartVisibleRange
     func doStartScale(){
         if (startVisibleRange != 0 && self.data != nil && self.data!.entryCount > 0){
             let scale = self.xAxis.axisRange / startVisibleRange
@@ -106,7 +108,7 @@ class UDLineChartV2 : LineChartView{
                 let p1 = self.getTransformer(forAxis: dataSet.axisDependency).pixelForValues(x: (Double)(maxPt.x), y: (Double)(maxPt.y))
                 _ = self.viewPortHandler.resetZoom()
                 
-                zoom(scaleX: CGFloat(scale), scaleY: 1, x: p1.x, y: p1.y/2)
+                zoom(scaleX: CGFloat(scale), scaleY: 1, x: p1.x*CGFloat(scale), y: p1.y/2)
             }
         }
     }
@@ -152,11 +154,30 @@ class UDLineChartV2 : LineChartView{
         viewPortHandler.refresh(newMatrix: newMatrix, chart: self, invalidate: true)
     }
     
-    func setDataInSacelable(_ data: LineChartData){
+    func setDataInSacelable(_ data: LineChartData, hasAnimate: Bool = false){
         //setMinOffsetL(50)
         self.data = data
         self.notifyDataSetChanged()
         self.fitScreen()
+        self.setNeedsDisplay()
+        self.doStartScale()
+        
+//        self.setNeedsLayout()
+//        self.animate(xAxisDuration: 0.4)
+        if (hasAnimate && data != nil){
+            let entryCount = data.entryCount
+            print("entryCount:\(entryCount)")
+            var animateTime: Double = 0
+            if entryCount < 2{
+                animateTime = 0.2
+            }else if animateTime < 10{
+                animateTime = 0.6
+            }else{
+                animateTime = 0.8
+            }
+            
+            self.animate(xAxisDuration: animateTime)
+        }
     }
 }
 
@@ -280,8 +301,9 @@ class LineChart1ViewController: DemoBaseViewController {
         sliderY.value = 100
         slidersValueChanged(nil)
         
+        
 
-        chartView.animate(xAxisDuration: 2.5)
+//        chartView.animate(xAxisDuration: 2.5)
         
     }
 
@@ -303,7 +325,7 @@ class LineChart1ViewController: DemoBaseViewController {
         }
 
 //        self.setDataCount(Int(sliderX.value), range: UInt32(sliderY.value))
-        self.setDataCount(6, range: UInt32(sliderY.value))
+        self.setDataCount(8, range: UInt32(sliderY.value))
 //        self.setDataCount(10, range: UInt32(sliderY.value))
     }
 
@@ -323,6 +345,8 @@ class LineChart1ViewController: DemoBaseViewController {
 //        }
         
 
+        chartView.startVisibleRange = 5*60*60*24//6.5*60*60*24
+        
         let set1 = LineChartDataSet(entries: values, label: "DataSet 1")
         set1.drawIconsEnabled = false
         setup(set1)
@@ -346,7 +370,8 @@ class LineChart1ViewController: DemoBaseViewController {
 
         let data = LineChartData(dataSet: set1)
 
-        chartView.data = data
+//        chartView.data = data
+        chartView.setDataInSacelable(data, hasAnimate: true)
         
         if let dataSet = chartView.data?.dataSet(at: 0){
             if dataSet.entryCount > 0{
@@ -360,7 +385,7 @@ class LineChart1ViewController: DemoBaseViewController {
     private func setup(_ dataSet: LineChartDataSet) {
         dataSet.mode = .cubicBezier
         dataSet.isDashLastPoint = false
-        dataSet.isCheckStepCubicLine = true
+        dataSet.isCheckStepCubicLine = true//false//true
         dataSet.drawValuesEnabled = false
         dataSet.drawCirclesEnabled = false
         dataSet.drawHorizontalHighlightIndicatorEnabled = false
@@ -445,6 +470,10 @@ class LineChart1ViewController: DemoBaseViewController {
         sliderTextX.text = "\(Int(sliderX.value))"
         sliderTextY.text = "\(Int(sliderY.value))"
 
-        self.updateChartData()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+//            self.contentView.backgroundColor = UTheme.color.content
+            self.updateChartData()
+        }
+//        self.updateChartData()
     }
 }

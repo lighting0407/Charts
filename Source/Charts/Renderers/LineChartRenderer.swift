@@ -277,7 +277,7 @@ open class LineChartRenderer: LineRadarRenderer
             if dataSet1 != nil && dataSet1!.isDashLastPoint{
                 isDrawLastPointDashPath = true
             }
-            
+//            print("_xBounds:\(_xBounds)")
             for j in _xBounds.dropFirst()  // same as firstIndex
             {
                 prevPrev = prev
@@ -286,9 +286,10 @@ open class LineChartRenderer: LineRadarRenderer
                 
                 nextIndex = j + 1 < dataSet.entryCount ? j + 1 : j
                 next = dataSet.entryForIndex(nextIndex)
+//                print("nextIndex:\(nextIndex), next:\(next.x),\(next.y)")
                 
                 if next == nil { break }
-                print("nextIndex:",nextIndex)
+//                print("nextIndex:",nextIndex)
                 prevDx = CGFloat(cur.x - prevPrev.x) * intensity
                 prevDy = CGFloat(cur.y - prevPrev.y) * intensity
                 curDx = CGFloat(next.x - prev.x) * intensity
@@ -384,6 +385,8 @@ open class LineChartRenderer: LineRadarRenderer
         var tMin = -1//Double.greatestFiniteMagnitude
         var tMax = -1//-Double.greatestFiniteMagnitude
   
+        
+//        print("_xBounds:\(_xBounds)")
         var j = _xBounds.min
         while(j <= _xBounds.max){
             if let entry = dataSet.entryForIndex(j){
@@ -479,12 +482,13 @@ open class LineChartRenderer: LineRadarRenderer
                 cur = nextIndex == j ? next : dataSet.entryForIndex(j)
                 
 //                nextIndex = j + 1 < dataSet.entryCount ? j + 1 : j
-                nextIndex = j + 1 < entryCount ? j + 1 : j
+//                nextIndex = j + 1 < entryCount ? j + 1 : j
+                nextIndex = j + 1 <= bound.max ? j + 1 : j
                 
                 next = dataSet.entryForIndex(nextIndex)
                 
                 if next == nil { break }
-                print("nextIndex:",nextIndex)
+//                print("nextIndex:",nextIndex)
                 prevDx = CGFloat(cur.x - prevPrev.x) * intensity
                 prevDy = CGFloat(cur.y - prevPrev.y) * intensity
                 curDx = CGFloat(next.x - prev.x) * intensity
