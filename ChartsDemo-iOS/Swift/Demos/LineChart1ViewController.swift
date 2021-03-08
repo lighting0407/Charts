@@ -159,14 +159,11 @@ class UDLineChartV2 : LineChartView{
         self.data = data
         self.notifyDataSetChanged()
         self.fitScreen()
-        self.setNeedsDisplay()
         self.doStartScale()
-        
-//        self.setNeedsLayout()
-//        self.animate(xAxisDuration: 0.4)
+        self.setNeedsDisplay()
         if (hasAnimate && data != nil){
             let entryCount = data.entryCount
-            print("entryCount:\(entryCount)")
+            
             var animateTime: Double = 0
             if entryCount < 2{
                 animateTime = 0.2
