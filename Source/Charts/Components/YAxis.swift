@@ -203,4 +203,39 @@ open class YAxis: AxisBase
     
     @objc open var isDrawTopYLabelEntryEnabled: Bool { return drawTopYLabelEntryEnabled }
 
+    public func reCalculateMinMaxForAutoScale(min dataMin: Double, max dataMax: Double){
+        var dMin = dataMin
+        var dMax = dataMax
+        let delta = dataMax - dataMin
+        if delta <= 0{
+            return
+        }
+        
+        if delta < 100{
+            dMin = max(0, dMin)
+            _axisMinimum = dMin
+            return
+        }
+        
+        dMin = dMin - delta / 6.0
+        dMin = max(0, dMin)
+        
+        let minStr = String("\(Int(dMin))")
+        let minLength = minStr.count
+        if minLength < 3{
+            dMin = 0
+        }else{
+            var secondChar = String(minStr[minStr.index(minStr.startIndex, offsetBy: 1)])
+            var firstChar = String(minStr[minStr.index(minStr.startIndex, offsetBy: 0)])
+            secondChar = Int(secondChar)! > 5 ? "5" : "0"
+            let dm1 : Double = Double(firstChar)! * pow(Double(10), Double(minLength-1))
+            let dm2 : Double = Double(secondChar)! * pow(10.0, Double(minLength-2))
+            dMin = dm1 + dm2
+        }
+        
+        dMax = dMax + delta / 4.0
+        
+        _axisMaximum = dMax
+        _axisMinimum = dMin
+    }
 }

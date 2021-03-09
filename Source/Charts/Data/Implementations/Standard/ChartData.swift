@@ -78,6 +78,14 @@ open class ChartData: NSObject, ExpressibleByArrayLiteral
         calcMinMax()
     }
     
+    @objc open func calcMinMaxForAutoScale(chart: BarLineChartViewBase)
+    {
+        forEach { $0.calcMinMaxForAutoScale(chart: chart) }
+        
+        // apply the new data
+        calcMinMax()
+    }
+    
     /// calc minimum and maximum y value over all datasets
     @objc open func calcMinMax()
     {

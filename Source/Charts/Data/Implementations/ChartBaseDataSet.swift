@@ -48,6 +48,9 @@ open class ChartBaseDataSet: NSObject, ChartDataSetProtocol, NSCopying
         fatalError("calcMinMax is not implemented in ChartBaseDataSet")
     }
     
+    open func calcMinMaxForAutoScale(chart: BarLineChartViewBase){
+        fatalError("calcMinMaxForAutoScale is not implemented in ChartBaseDataSet")
+    }
     open func calcMinMaxY(fromX: Double, toX: Double)
     {
         fatalError("calcMinMaxY(fromX:, toX:) is not implemented in ChartBaseDataSet")

@@ -337,7 +337,7 @@ class LineChart1ViewController: DemoBaseViewController {
         let date: Double = 1612915200
         let values = (0..<count).map { (i) -> ChartDataEntry in
 //            let val = Double(arc4random_uniform(range) + 3)
-            let  val = v1[i % v1.count]
+            let  val = v1[i % v1.count] * 1000
             let d = date + Double(i*60*60*24)
             return ChartDataEntry(x: d, y: val, icon: #imageLiteral(resourceName: "icon"))
 //            return ChartDataEntry(x: Double(i), y: val, icon: #imageLiteral(resourceName: "icon"))
@@ -348,7 +348,7 @@ class LineChart1ViewController: DemoBaseViewController {
 //        }
         
 
-//        chartView.startVisibleRange = 5*60*60*24//6.5*60*60*24
+        chartView.startVisibleRange = 5*60*60*24//6.5*60*60*24
         
         let set1 = LineChartDataSet(entries: values, label: "DataSet 1")
         set1.drawIconsEnabled = false

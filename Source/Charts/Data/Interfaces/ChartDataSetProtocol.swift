@@ -27,6 +27,9 @@ public protocol ChartDataSetProtocol
     /// This is only needed for the autoScaleMinMax feature.
     func calcMinMaxY(fromX: Double, toX: Double)
     
+    //用于linechart支持autoscale时
+    func calcMinMaxForAutoScale(chart: BarLineChartViewBase)
+    
     /// The minimum y-value this DataSet holds
     var yMin: Double { get }
     

@@ -316,7 +316,8 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         guard let data = data
             else { return }
         
-        data.calcMinMaxY(fromX: self.lowestVisibleX, toX: self.highestVisibleX)
+//        data.calcMinMaxY(fromX: self.lowestVisibleX, toX: self.highestVisibleX)
+        data.calcMinMaxForAutoScale(chart: self)
         
         xAxis.calculate(min: data.xMin, max: data.xMax)
         
@@ -325,6 +326,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         if leftAxis.isEnabled
         {
             leftAxis.calculate(min: data.getYMin(axis: .left), max: data.getYMax(axis: .left))
+            leftAxis.reCalculateMinMaxForAutoScale(min: data.getYMin(axis: .left), max: data.getYMax(axis: .left))
         }
         
         if rightAxis.isEnabled

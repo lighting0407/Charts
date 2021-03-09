@@ -99,16 +99,20 @@ open class ChartDataSet: ChartBaseDataSet
         _yMin = Double.greatestFiniteMagnitude
 
         guard !isEmpty else { return }
-        
-//        let indexFrom = entryIndex(x: fromX, closestToY: .nan, rounding: .down)
-//        let indexTo = entryIndex(x: toX, closestToY: .nan, rounding: .up)
-        let indexFrom = entryIndex(x: fromX, closestToY: .nan, rounding: .up)
-        let indexTo = entryIndex(x: toX, closestToY: .nan, rounding: .down)
+
+        //old
+        let indexFrom = entryIndex(x: fromX, closestToY: .nan, rounding: .down)
+        let indexTo = entryIndex(x: toX, closestToY: .nan, rounding: .up)
+        //new
+//        let indexFrom = entryIndex(x: fromX, closestToY: .nan, rounding: .up)
+//        let indexTo = entryIndex(x: toX, closestToY: .nan, rounding: .down)
         
         guard indexTo >= indexFrom else { return }
         // only recalculate y
         self[indexFrom...indexTo].forEach(calcMinMaxY)
     }
+    
+    
     
     @objc open func calcMinMaxX(entry e: ChartDataEntry)
     {
@@ -130,6 +134,50 @@ open class ChartDataSet: ChartBaseDataSet
     {
         calcMinMaxX(entry: e)
         calcMinMaxY(entry: e)
+    }
+    
+    //用于linechart支持autoscale时
+    open override func calcMinMaxForAutoScale(chart: BarLineChartViewBase)
+    {
+        if entries == nil || entries.isEmpty  { return }
+        _yMax = -Double.greatestFiniteMagnitude
+        _yMin = Double.greatestFiniteMagnitude
+        
+        let indexFrom = getEntryIndexForScale(chart: chart, isLeft: true)
+        let indexTo = getEntryIndexForScale(chart: chart, isLeft: false)
+        guard indexTo >= indexFrom else { return }
+        // only recalculate y
+        self[indexFrom...indexTo].forEach(calcMinMaxY)
+    }
+    
+    private func getEntryIndexForScale(chart: BarLineChartViewBase, isLeft: Bool)->Int{
+        let startIndex = isLeft ? 0 : entries.count-1
+        let factor = isLeft ? 1 : -1
+        var i = startIndex
+        while(isLeft ? i < entries.count : i > -1){
+            let entry = entries[i]
+            
+            if entry == nil{
+                i = i + 1*factor
+                continue
+            }
+            
+            if let lineData = self as? LineChartDataSet{
+                let validateMin = lineData.minValidateValue
+                if entry.y < validateMin{
+                    i = i + 1*factor
+                    continue
+                }
+            }
+            
+            let pt = chart.getTransformer(forAxis: axisDependency).pixelForValues(x: entry.x, y: entry.y)
+            if !chart.viewPortHandler.isInBoundsX(pt.x){
+                i = i + 1*factor
+                continue
+            }
+            return i
+        }
+        return -1
     }
     
     /// The minimum y-value this DataSet holds
