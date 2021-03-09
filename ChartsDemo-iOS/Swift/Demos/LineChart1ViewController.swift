@@ -70,6 +70,7 @@ class UDLineChartV2 : LineChartView{
         self.minLOffset = 50.0
     }
     func setupChartView(){
+        self.noDataText = ""
         self.chartDescription.enabled = false
         self.dragEnabled = true
         self.setScaleEnabled(true)
@@ -388,7 +389,7 @@ class LineChart1ViewController: DemoBaseViewController {
 
     private func setup(_ dataSet: LineChartDataSet) {
         dataSet.mode = .cubicBezier
-        dataSet.isDashLastPoint = false
+        dataSet.isDashLastPoint = true
         dataSet.isCheckStepCubicLine = true//false//true
         dataSet.drawValuesEnabled = false
         dataSet.drawCirclesEnabled = false

@@ -117,6 +117,9 @@ open class LineChartRenderer: LineRadarRenderer
         {
             return
         }
+        guard let dataProvider = dataProvider else { return }
+        let trans = dataProvider.getTransformer(forAxis: dataSet.axisDependency)
+
         var maxYValue = -Double.greatestFiniteMagnitude
         var maxEntry: ChartDataEntry? = nil
         for i in _xBounds{
@@ -124,6 +127,14 @@ open class LineChartRenderer: LineRadarRenderer
             if entry == nil{
                 continue
             }
+            if entry!.y < dataSet.minValidateValue{
+                continue
+            }
+            let pt = trans.pixelForValues(x: entry!.x, y: entry!.y)
+            if !viewPortHandler.isInBounds(x: pt.x, y: pt.y){
+                continue
+            }
+            
             if entry!.y >= maxYValue{
                 maxYValue = entry!.y
                 maxEntry = entry!
@@ -145,6 +156,9 @@ open class LineChartRenderer: LineRadarRenderer
         {
             return
         }
+        guard let dataProvider = dataProvider else { return }
+        let trans = dataProvider.getTransformer(forAxis: dataSet.axisDependency)
+        
         var minYValue = Double.greatestFiniteMagnitude
         var minEntry: ChartDataEntry? = nil
         for i in _xBounds{
@@ -152,6 +166,12 @@ open class LineChartRenderer: LineRadarRenderer
             if entry == nil{
                 continue
             }
+            
+            let pt = trans.pixelForValues(x: entry!.x, y: entry!.y)
+            if !viewPortHandler.isInBounds(x: pt.x, y: pt.y){
+                continue
+            }
+            
             if dataSet.isCheckStepCubicLine{
                 if entry!.y < minYValue && entry!.y > dataSet.minValidateValue{
                     minYValue = entry!.y
@@ -470,7 +490,7 @@ open class LineChartRenderer: LineRadarRenderer
             lastPointDashCubicPath.move(to: CGPoint(x: CGFloat(cur.x), y: CGFloat(cur.y * phaseY)), transform: valueToPixelMatrix)
                         
             let dataSet1 = dataSet as? LineChartDataSet
-            if dataSet1 != nil && dataSet1!.isDashLastPoint{
+            if dataSet1 != nil && dataSet1!.isDashLastPoint && bound.max == dataSet.entryCount-1{
                 isDrawLastPointDashPath = true
             }
             let entryCount = bound.range+1
