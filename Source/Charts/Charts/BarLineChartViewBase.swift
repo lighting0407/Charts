@@ -707,7 +707,9 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
             { // If we have no data, we have nothing to pan and no data to highlight
                 return
             }
-            
+            if self.isFullyZoomedOut{
+                delegate?.chartViewBeginPanningOrLongPress?(self)
+            }
             // If drag is enabled and we are in a position where there's something to drag:
             //  * If we're zoomed in, then obviously we have something to drag.
             //  * If we have a drag offset - we always have something to drag
@@ -830,6 +832,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
             }
                       
             _isDragging = false
+            delegate?.chartViewBeginPanningOrLongPress?(self)
         }
         else if recognizer.state == NSUIGestureRecognizerState.changed
         {
