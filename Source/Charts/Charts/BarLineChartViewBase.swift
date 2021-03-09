@@ -59,6 +59,8 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
 
     /// Sets the minimum offset (padding) around the chart, defaults to 10
     @objc open var minOffset = CGFloat(10.0)
+    @objc open var minLOffset = CGFloat(10.0)
+    @objc open var minROffset = CGFloat(10.0)
     
     /// Sets whether the chart should keep its position (zoom / scroll) after a rotation (orientation change)
     /// **default**: false
@@ -482,11 +484,17 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
             offsetBottom += self.extraBottomOffset
             offsetLeft += self.extraLeftOffset
 
+//            viewPortHandler.restrainViewPort(
+//                offsetLeft: max(self.minOffset, offsetLeft),
+//                offsetTop: max(self.minOffset, offsetTop),
+//                offsetRight: max(self.minOffset, offsetRight),
+//                offsetBottom: max(self.minOffset, offsetBottom))
             viewPortHandler.restrainViewPort(
-                offsetLeft: max(self.minOffset, offsetLeft),
+                offsetLeft: max(self.minLOffset, offsetLeft),
                 offsetTop: max(self.minOffset, offsetTop),
-                offsetRight: max(self.minOffset, offsetRight),
+                offsetRight: max(self.minROffset, offsetRight),
                 offsetBottom: max(self.minOffset, offsetBottom))
+            
         }
         
         prepareOffsetMatrix()

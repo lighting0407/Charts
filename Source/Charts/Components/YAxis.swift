@@ -150,6 +150,8 @@ open class YAxis: AxisBase
     
     open override func calculate(min dataMin: Double, max dataMax: Double)
     {
+//        self.reCalculateMinMaxForAutoScale(min: dataMin, max: dataMax)
+//        return
         // if custom, use value as is, else use data value
         var min = _customAxisMin ? _axisMinimum : dataMin
         var max = _customAxisMax ? _axisMaximum : dataMax
@@ -214,6 +216,9 @@ open class YAxis: AxisBase
         if delta < 100{
             dMin = max(0, dMin)
             _axisMinimum = dMin
+            _axisMaximum = dMax
+            // calc actual range
+            axisRange = abs(_axisMaximum - _axisMinimum)
             return
         }
         
@@ -237,5 +242,7 @@ open class YAxis: AxisBase
         
         _axisMaximum = dMax
         _axisMinimum = dMin
+        // calc actual range
+        axisRange = abs(_axisMaximum - _axisMinimum)
     }
 }
