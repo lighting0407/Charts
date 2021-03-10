@@ -330,12 +330,12 @@ class LineChart1ViewController: DemoBaseViewController {
         }
 
 //        self.setDataCount(Int(sliderX.value), range: UInt32(sliderY.value))
-        self.setDataCount(8, range: UInt32(sliderY.value))
+        self.setDataCount(6, range: UInt32(sliderY.value))
 //        self.setDataCount(10, range: UInt32(sliderY.value))
     }
 
     func setDataCount(_ count: Int, range: UInt32) {
-        let v1: [Double] = [1,5,14,8,7,2]//[1,5,140,80,7000,2]//[1,5,14,8,7,2]//[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]// [-1,1,2,3,-1,-1,4,5,6,7]
+        let v1: [Double] = [2,5,14,8,7,1]//[1,5,140,80,7000,2]//[1,5,14,8,7,2]//[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]// [-1,1,2,3,-1,-1,4,5,6,7]
         let date: Double = 1612915200
         let values = (0..<count).map { (i) -> ChartDataEntry in
 //            let val = Double(arc4random_uniform(range) + 3)

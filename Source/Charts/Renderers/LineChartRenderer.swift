@@ -174,8 +174,13 @@ open class LineChartRenderer: LineRadarRenderer
             
             if dataSet.isCheckStepCubicLine{
                 if entry!.y < minYValue && entry!.y > dataSet.minValidateValue{
-                    minYValue = entry!.y
-                    minEntry = entry!
+                    if dataSet.isDashLastPoint && i == _xBounds.max{
+                        continue
+                    }else{
+                        minYValue = entry!.y
+                        minEntry = entry!
+                    }
+                    
                 }
             }else{
                 if entry!.y < minYValue{

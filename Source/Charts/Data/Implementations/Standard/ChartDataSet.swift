@@ -145,7 +145,7 @@ open class ChartDataSet: ChartBaseDataSet
         
         let indexFrom = getEntryIndexForScale(chart: chart, isLeft: true)
         let indexTo = getEntryIndexForScale(chart: chart, isLeft: false)
-        guard indexTo >= indexFrom else { return }
+        guard indexTo >= indexFrom && indexFrom >= 0 else { return }
         // only recalculate y
         self[indexFrom...indexTo].forEach(calcMinMaxY)
     }
