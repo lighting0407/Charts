@@ -374,6 +374,9 @@ open class ChartBaseDataSet: NSObject, ChartDataSetProtocol, NSCopying
         return visible
     }
     
+    /// Custom formatter that is used instead of the auto-formatter if set
+    open lazy var maxMinvalueFormatter: ValueFormatter? = nil
+    
     // MARK: - NSObject
     
     open override var description: String
@@ -410,6 +413,7 @@ open class ChartBaseDataSet: NSObject, ChartDataSetProtocol, NSCopying
         copy.drawIconsEnabled = drawIconsEnabled
         copy.iconsOffset = iconsOffset
         copy.visible = visible
+        copy.maxMinvalueFormatter = maxMinvalueFormatter
         
         return copy
     }

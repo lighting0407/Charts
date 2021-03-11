@@ -145,7 +145,7 @@ open class LineChartRenderer: LineRadarRenderer
             return
         }
         
-        let dataStr = "Max:\(maxEntry!.y)"
+        let dataStr = dataSet.maxMinvalueFormatter == nil ? "\(maxEntry!.y)" : dataSet.maxMinvalueFormatter!.stringForValue(maxEntry!.y, entry: ChartDataEntry(), dataSetIndex: 0, viewPortHandler: nil)
         self.drawPointMarker(dataSet, context: context, entry: maxEntry!, text: dataStr, startPtOffsetY: -1.50, endPtOffsetY: -5,lineColor: lineColor, textColor: textColor)
     }
     
@@ -194,7 +194,7 @@ open class LineChartRenderer: LineRadarRenderer
             return
         }
         
-        let dataStr = "Min:\(minEntry!.y)"
+        let dataStr = dataSet.maxMinvalueFormatter == nil ? "\(minEntry!.y)" : dataSet.maxMinvalueFormatter!.stringForValue(minEntry!.y, entry: ChartDataEntry(), dataSetIndex: 0, viewPortHandler: nil)
         self.drawPointMarker(dataSet, context: context, entry: minEntry!, text: dataStr, startPtOffsetY: 1.5, endPtOffsetY: 5,lineColor: lineColor, textColor: textColor)
     }
     

@@ -395,6 +395,7 @@ class LineChart1ViewController: DemoBaseViewController {
         dataSet.drawCirclesEnabled = false
         dataSet.drawHorizontalHighlightIndicatorEnabled = false
         dataSet.highlightColor = .red
+        dataSet.maxMinvalueFormatter = KeyMaxMinValueFormat()
         
 //        dataSet.isss
         if dataSet.isDrawLineWithGradientEnabled {
@@ -480,5 +481,42 @@ class LineChart1ViewController: DemoBaseViewController {
             self.updateChartData()
         }
 //        self.updateChartData()
+    }
+}
+
+public class KeyMaxMinValueFormat: ValueFormatter
+{
+    static var numberFormatter = NumberFormatter()
+    static func addNumberCommas(_ str: String) -> String {
+        numberFormatter.numberStyle = NumberFormatter.Style.decimal
+        var str = str
+        if str == "-" {
+            return str
+        }
+//        str = str.replacingAll(matching: ",", with: "")
+        let dStr: Double = Double(str) ?? 0
+        let rD = round(dStr)
+        let number = Int(rD)
+        
+        return numberFormatter.string(from: NSNumber(value: number)) ?? ""
+//        let numberFormatter = NumberFormatter()
+//        numberFormatter.numberStyle = NumberFormatter.Style.decimal
+//        return numberFormatter.string(from: NSNumber(value: number)) ?? ""
+    }
+    
+    /// Called when a value (from labels inside the chart) is formatted before being drawn.
+    ///
+    /// For performance reasons, avoid excessive calculations and memory allocations inside this method.
+    ///
+    /// - Parameters:
+    ///   - value:           The value to be formatted
+    ///   - dataSetIndex:    The index of the DataSet the entry in focus belongs to
+    ///   - viewPortHandler: provides information about the current chart state (scale, translation, ...)
+    /// - Returns:                   The formatted label ready to be drawn
+    public func stringForValue(_ value: Double,
+                        entry: ChartDataEntry,
+                        dataSetIndex: Int,
+                        viewPortHandler: ViewPortHandler?) -> String{
+        return KeyMaxMinValueFormat.addNumberCommas("\(value)")
     }
 }
