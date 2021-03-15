@@ -140,12 +140,14 @@ open class ChartDataSet: ChartBaseDataSet
     open override func calcMinMaxForAutoScale(chart: BarLineChartViewBase)
     {
         if entries == nil || entries.isEmpty  { return }
-        _yMax = -Double.greatestFiniteMagnitude
-        _yMin = Double.greatestFiniteMagnitude
+        
         
         let indexFrom = getEntryIndexForScale(chart: chart, isLeft: true)
         let indexTo = getEntryIndexForScale(chart: chart, isLeft: false)
         guard indexTo >= indexFrom && indexFrom >= 0 else { return }
+        
+        _yMax = -Double.greatestFiniteMagnitude
+        _yMin = Double.greatestFiniteMagnitude
         // only recalculate y
         self[indexFrom...indexTo].forEach(calcMinMaxY)
     }

@@ -34,7 +34,7 @@ class UDLineChartV2 : LineChartView{
         xAxis.axisLineColor = .red //X轴颜色
         xAxis.labelTextColor = UIColor.red.withAlphaComponent(0.5) //X轴数据颜色
 //        xAxis.labelCount = 4
-        xAxis.setLabelCount(4, force: true)
+//        xAxis.setLabelCount(4, force: true)
         
         xAxis.valueFormatter = DateValueFormatter();
     }
@@ -52,7 +52,7 @@ class UDLineChartV2 : LineChartView{
         leftAxis.drawZeroLineEnabled = false //是否绘制0刻度线
         leftAxis.drawLabelsEnabled = true //是否显示Y轴刻度
         leftAxis.gridLineDashLengths = nil
-        leftAxis.labelPosition = .outsideChart
+        leftAxis.labelPosition = .insideChart//.outsideChart
         leftAxis.setLabelCount(4, force: true)
 //        leftAxis.spaceBottom = 1
 //        leftAxis.spaceTop = 1
@@ -67,7 +67,7 @@ class UDLineChartV2 : LineChartView{
 
 //        leftAxis.axisMaximum = 200
 //        leftAxis.axisMinimum = -50
-        self.minLOffset = 50.0
+//        self.minLOffset = 50.0
     }
     func setupChartView(){
         self.noDataText = ""
@@ -182,6 +182,40 @@ class UDLineChartV2 : LineChartView{
         }
     }
     
+    func getCurVisibleRange()->(min: Int, max: Int){
+        var min = -1//Double.greatestFiniteMagnitude
+        var max = -1//-Double.greatestFiniteMagnitude
+        var hasFindMin = false
+        if let dataSet = self.data?.dataSet(at: 0){
+            let trans = self.getTransformer(forAxis: dataSet.axisDependency)
+            for i in 0..<dataSet.entryCount{
+                let entry = dataSet.entryForIndex(i)
+                if entry == nil{
+                    continue
+                }
+                let pt = trans.pixelForValues(x: entry!.x, y: entry!.y)
+                if !hasFindMin{
+                    if !viewPortHandler.isInBounds(x: pt.x, y: pt.y){
+                        continue
+                    }else{
+                        min = i
+                        hasFindMin = true
+                    }
+                }else{
+                    if viewPortHandler.isInBounds(x: pt.x, y: pt.y){
+                       max = i
+                    }
+                }
+                               
+            }
+        }
+        if max < min{
+            min = 0
+            max = 0
+        }
+        return (min: min, max:max)
+        
+    }
 }
 
 
@@ -254,9 +288,9 @@ class LineChart1ViewController: DemoBaseViewController {
         chartView.longPressEnabled = true
         
         //x轴
-        initXAxis()
-        //y轴
-        initYAxis()
+//        initXAxis()
+//        //y轴
+//        initYAxis()
         //图例
         chartView.legend.enabled = false
     }
@@ -313,7 +347,8 @@ class LineChart1ViewController: DemoBaseViewController {
     }
 
     @objc override func chartValueSelected(_ chartView: ChartViewBase, entry: ChartDataEntry, highlight: Highlight){
-        print("entry:\(entry)")
+        
+        
         guard let set = chartView.data![highlight.dataSetIndex] as? LineChartDataSetProtocol,
               set.isHighlightEnabled
         else { return }
@@ -330,7 +365,7 @@ class LineChart1ViewController: DemoBaseViewController {
         }
 
 //        self.setDataCount(Int(sliderX.value), range: UInt32(sliderY.value))
-        self.setDataCount(6, range: UInt32(sliderY.value))
+        self.setDataCount(12, range: UInt32(sliderY.value))
 //        self.setDataCount(10, range: UInt32(sliderY.value))
     }
 
@@ -429,6 +464,27 @@ class LineChart1ViewController: DemoBaseViewController {
     }
 
     override func optionTapped(_ option: Option) {
+        let z1 = chartView.viewPortHandler.canZoomInMoreX
+        let z2 = chartView.viewPortHandler.canZoomOutMoreX
+        let rightBottom = chartView.viewPortHandler.contentRight
+        let t =  chartView.getTransformer(forAxis: .left).pixelForValues(x: Double(chartView.viewPortHandler.contentRight), y: Double(chartView.viewPortHandler.contentBottom))
+        
+        if let dataSet = chartView.data?.dataSet(at: 0){
+            
+            print("chartView.viewPortHandler.transX:\(chartView.viewPortHandler.transX)")
+            if chartView.viewPortHandler.transX == 0{
+                print("在最左侧边界")
+            }
+            let maxTransX = -chartView.viewPortHandler.contentWidth * (chartView.scaleX - 1.0)
+            if maxTransX == chartView.viewPortHandler.transX{
+                print("在最you")
+            }
+//            chartView.xAxis.axisMaximum
+        }
+        
+        let range = chartView.getCurVisibleRange()
+        print("range:\(range)")
+        
         guard let data = chartView.data else { return }
 
         switch option {
