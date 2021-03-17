@@ -227,6 +227,9 @@ class LineChart1ViewController: DemoBaseViewController {
     @IBOutlet var sliderTextX: UITextField!
     @IBOutlet var sliderTextY: UITextField!
 
+    static var globalDateFormat2 = DateFormatter()
+    var xAxisFormatter = KeySummaryDateAxisFormatter()
+    
     func initXAxis(){
         let xAxis = chartView.xAxis
         xAxis.drawLabelsEnabled = true
@@ -240,7 +243,9 @@ class LineChart1ViewController: DemoBaseViewController {
 //        xAxis.labelCount = 4
         xAxis.setLabelCount(4, force: true)
         
-        xAxis.valueFormatter = DateValueFormatter();
+//        xAxis.valueFormatter = DateValueFormatter();
+        xAxisFormatter.chartView = chartView
+        xAxis.valueFormatter = xAxisFormatter
     }
     
     func initYAxis(){
@@ -293,10 +298,15 @@ class LineChart1ViewController: DemoBaseViewController {
 //        initYAxis()
         //图例
         chartView.legend.enabled = false
+        
+        
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        let timeZone2 = TimeZone.init(identifier: "UTC")
+        LineChart1ViewController.globalDateFormat2.timeZone = timeZone2
+        LineChart1ViewController.globalDateFormat2.locale = Locale.init(identifier: "zh_CN")
+        LineChart1ViewController.globalDateFormat2.dateFormat = "yyyyMMdd"
 
         // Do any additional setup after loading the view.
         self.title = "Line Chart 1"
@@ -340,7 +350,9 @@ class LineChart1ViewController: DemoBaseViewController {
         sliderY.value = 100
         slidersValueChanged(nil)
         
-        
+        xAxisFormatter.chartView = chartView
+        chartView.xAxis.valueFormatter = xAxisFormatter
+        chartView.xAxis.setLabelCount(4, force: true)
 
 //        chartView.animate(xAxisDuration: 2.5)
         
@@ -385,7 +397,7 @@ class LineChart1ViewController: DemoBaseViewController {
 //        }
         
 
-        chartView.startVisibleRange = 5*60*60*24//6.5*60*60*24
+        chartView.startVisibleRange = 6.5*60*60*24
         
         let set1 = LineChartDataSet(entries: values, label: "DataSet 1")
         set1.drawIconsEnabled = false
@@ -575,4 +587,161 @@ public class KeyMaxMinValueFormat: ValueFormatter
                         viewPortHandler: ViewPortHandler?) -> String{
         return KeyMaxMinValueFormat.addNumberCommas("\(value)")
     }
+}
+
+class KeySummaryDateAxisFormatter: AxisValueFormatter {
+    var dataSet: LineChartDataSet? = nil
+    var chartView: UDLineChartV2? = nil
+    
+    func year(_ date: Date)->Int{
+        
+        let calendar = Calendar.current
+         
+        let year = calendar.component(.year, from: date)
+//        let month = calendar.component(.month, from: date)
+//        let day = calendar.component(.day, from: date)
+        return year
+    }
+    
+    func month(_ date: Date)->Int{
+        
+        let calendar = Calendar.current
+         
+//        let year = calendar.component(.year, from: date)
+        let month = calendar.component(.month, from: date)
+//        let day = calendar.component(.day, from: date)
+        return month
+    }
+    
+    func day(_ date: Date)->Int{
+        
+        let calendar = Calendar.current
+         
+//        let year = calendar.component(.year, from: date)
+//        let month = calendar.component(.month, from: date)
+        let day = calendar.component(.day, from: date)
+        return day
+    }
+       
+     func stringForValue(_ value: Double, axis: AxisBase?) -> String{
+//        let dateid = LineChart1ViewController.globalDateFormat2.string(from: Date(seconds: value))
+        let curDate =  Date(timeIntervalSince1970: TimeInterval(Int(value)))
+        
+        guard let chart = chartView else {
+            return "21/01/01"
+        }
+            
+        if let dataSet = chart.data?.dataSet(at: 0) {
+            let visibleRange = chart.getCurVisibleRange()
+            if let startEntry = dataSet.entryForIndex(visibleRange.min),let endEntry = dataSet.entryForIndex(visibleRange.max){
+                let startDate = Date(timeIntervalSince1970: TimeInterval(Int(startEntry.x)))
+                let endDate = Date(timeIntervalSince1970: TimeInterval(Int(endEntry.x)))
+                let now = Date()
+                if self.year(startDate) == self.year(now)  && self.year(startDate) == self.year(endDate){
+                    //X轴数值在当前年
+                    return "\(month(curDate))/\(day(curDate))"
+                }else{
+                    return "\(year(curDate))/\(month(curDate))/\(day(curDate))"
+                }
+            }
+            
+        }else{
+            return "\(year(curDate))/\(month(curDate))/\(day(curDate))"
+        }
+    
+        return "\(year(curDate))/\(month(curDate))/\(day(curDate))"
+    }
+    
+
+//     func visibleDataSetEntries() ->(entry: [ChartDataEntry], index: [Int]){
+    func visibleDataSetEntries() -> [ChartDataEntry]{
+        guard let chart = chartView else {
+            return []
+//            return (entry: [], index: [])
+        }
+        var result: [ChartDataEntry] = []
+//        var resultIdx: [Int] = []
+        if let dataSet = chart.data?.dataSet(at: 0) {
+            let lowValue = chart.lowestVisibleX
+            let highValue = chart.highestVisibleX
+            
+            let low = dataSet.entryIndex(x: lowValue, closestToY: 0, rounding: .down)
+            let high = dataSet.entryIndex(x: highValue, closestToY: 0, rounding: .up)
+            let trans = chart.getTransformer(forAxis: dataSet.axisDependency)
+            
+            var lowPrecise = 0, highPrecise = 0
+            for i in Int(low)...Int(high){
+                if let entry = dataSet.entryForIndex(i){
+                    let pt = trans.pixelForValues(x: entry.x, y: entry.y)
+                    if chart.viewPortHandler.isInBounds(x: pt.x, y: pt.y){
+                        lowPrecise = i
+                        break
+                    }
+                }
+            }
+          
+            for i in (low...high).reversed(){
+                if let entry = dataSet.entryForIndex(i){
+                    let pt = trans.pixelForValues(x: entry.x, y: entry.y)
+                    if chart.viewPortHandler.isInBounds(x: pt.x, y: pt.y){
+                        highPrecise = i
+                        break
+                    }
+                }
+            }
+            
+//            print("low-high:\(lowPrecise)-\(highPrecise)")
+            for i in Int(lowPrecise)...Int(highPrecise){
+                if let entry = dataSet.entryForIndex(i){
+                        result.append(entry)
+                }
+            }
+            
+            
+//            let visibleRange = chart.getCurVisibleRange()
+//            if let startEntry = dataSet.entryForIndex(visibleRange.min),let endEntry = dataSet.entryForIndex(visibleRange.max){
+//                let startDate = Date(timeIntervalSince1970: TimeInterval(Int(startEntry.x)))
+//                let endDate = Date(timeIntervalSince1970: TimeInterval(Int(endEntry.x)))
+//                print("visibleRange:\(visibleRange)")
+//            }
+//
+        }
+        if !result.isEmpty{
+//            index = resultIdx
+            return result
+//             return (entry: result, index:resultIdx)
+        }
+        return []
+//        return (entry: [], index: [])
+    }
+    
+    func stringForValueInSpecial(_ value: Double, axis: AxisBase?, firstIndex: Int) -> String{
+//        let dateid = LineChart1ViewController.globalDateFormat2.string(from: Date(seconds: value))
+        let curDate =  Date(timeIntervalSince1970: TimeInterval(Int(value)))
+
+        guard let chart = chartView else {
+           return "21/01/01"
+        }
+        
+        if let dataSet = chart.data?.dataSet(at: 0) {
+            let now = Date()
+            var isShowYear = true
+            if let firstVisibleEntry = dataSet.entryForIndex(firstIndex) {
+                let curDate =  Date(timeIntervalSince1970: TimeInterval(Int(firstVisibleEntry.x)))
+                if self.year(curDate) == self.year(now){
+                    isShowYear = false
+                }
+            }
+            if !isShowYear{
+                //X轴数值在当前年
+                return "\(month(curDate))/\(day(curDate))"
+            }else{
+                return "\(year(curDate))/\(month(curDate))/\(day(curDate))"
+            }
+        
+           
+        }else{
+            return "\(year(curDate))/\(month(curDate))/\(day(curDate))"
+        }
+   }
 }

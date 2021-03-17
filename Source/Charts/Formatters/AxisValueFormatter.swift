@@ -27,4 +27,9 @@ public protocol AxisValueFormatter: class
     func stringForValue(_ value: Double,
                         axis: AxisBase?) -> String
     
+//    @objc @objc optional func visibleDataSetEntries() -> (entry: [ChartDataEntry], index: [Int])
+    @objc optional func visibleDataSetEntries() -> [ChartDataEntry]
+    
+    @objc optional func stringForValueInSpecial(_ value: Double, axis: AxisBase?, firstIndex: Int) -> String
+    
 }

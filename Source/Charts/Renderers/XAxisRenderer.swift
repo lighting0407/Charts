@@ -93,16 +93,82 @@ open class XAxisRenderer: NSObject, AxisRenderer
         // force label count
         if axis.isForceLabelsEnabled
         {
-            interval = range / Double(labelCount - 1)
+            //new
+            if let entryMap = axis.valueFormatter?.visibleDataSetEntries?(), !entryMap.isEmpty{
+                var delta: Double = 0
+                if entryMap.count >= 2{
+                    delta = entryMap[1].x - entryMap[0].x
+                }
+                
+                print("entryMap:\(entryMap)")
+//                let firstIdx = entryMap.index.first!
+                var labelMaxSize = CGSize.zero
+                if axis.isWordWrapEnabled
+                {
+                    guard let transformer = self.transformer else { return }
+                    labelMaxSize.width = axis.wordWrapWidthPercent * transformer.valueToPixelMatrix.a
+                }
+                let paraStyle = ParagraphStyle.default.mutableCopy() as! MutableParagraphStyle
+                paraStyle.alignment = .center
 
-            // Ensure stops contains at least n elements.
-            axis.entries.removeAll(keepingCapacity: true)
-            axis.entries.reserveCapacity(labelCount)
+                let labelAttrs: [NSAttributedString.Key : Any] = [.font: axis.labelFont,
+                                                                .foregroundColor: axis.labelTextColor,
+                                                                .paragraphStyle: paraStyle]
 
-            let values = stride(from: yMin, to: Double(labelCount) * interval + yMin, by: interval)
-            axis.entries.append(contentsOf: values)
+                var startIdx = 0, endIdx = 0
+                for (bIdx, entry) in entryMap.enumerated(){
+                    let label = axis.valueFormatter?.stringForValue(entry.x, axis: axis) ?? ""
+                    let width = label.boundingRect(with: labelMaxSize, options: .usesLineFragmentOrigin, attributes: labelAttrs, context: nil).size.width
+                    print("label:\(label),width:\(width)")
+                    if let pt = transformer?.pixelForValues(x: entry.x, y: 0){
+                        if pt.x > viewPortHandler.contentLeft + (width/2){
+                            startIdx = bIdx
+                            break
+                        }
+                    }
+                }
+                
+                for (bIdx, entry) in entryMap.reversed().enumerated(){
+                    let label = axis.valueFormatter?.stringForValue(entry.x, axis: axis) ?? ""
+                    let width = label.boundingRect(with: labelMaxSize, options: .usesLineFragmentOrigin, attributes: labelAttrs, context: nil).size.width
+                    print("label:\(label),width:\(width)")
+                    if let pt = transformer?.pixelForValues(x: entry.x, y: 0){
+                        if pt.x < viewPortHandler.contentRight-(width/2){
+                            endIdx = entryMap.count - bIdx - 1
+                            break
+                        }
+                    }
+                }
+                
+                print("start-end:\(startIdx)-\(endIdx)")
+                var gap = 0
+                if endIdx > startIdx{
+                    gap = Int(round( Double(endIdx-startIdx)/Double(labelCount-2+1)))
+                }
+                axis.entries.removeAll(keepingCapacity: true)
+                axis.entries.reserveCapacity(labelCount)
+                
+                var flag = startIdx
+                while (flag < endIdx) {
+                    axis.entries.append(entryMap[flag].x)
+                    flag += gap
+                }
+                if endIdx != startIdx{
+                    axis.entries.append(entryMap[endIdx].x)
+                }
+                n = labelCount
+            }else{
+                interval = range / Double(labelCount - 1)
 
-            n = labelCount
+                // Ensure stops contains at least n elements.
+                axis.entries.removeAll(keepingCapacity: true)
+                axis.entries.reserveCapacity(labelCount)
+
+                let values = stride(from: yMin, to: Double(labelCount) * interval + yMin, by: interval)
+                axis.entries.append(contentsOf: values)
+
+                n = labelCount
+            }
         }
         else
         {
