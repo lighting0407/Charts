@@ -99,9 +99,6 @@ open class XAxisRenderer: NSObject, AxisRenderer
                 if entryMap.count >= 2{
                     delta = entryMap[1].x - entryMap[0].x
                 }
-                
-                print("entryMap:\(entryMap)")
-//                let firstIdx = entryMap.index.first!
                 var labelMaxSize = CGSize.zero
                 if axis.isWordWrapEnabled
                 {
@@ -119,7 +116,7 @@ open class XAxisRenderer: NSObject, AxisRenderer
                 for (bIdx, entry) in entryMap.enumerated(){
                     let label = axis.valueFormatter?.stringForValue(entry.x, axis: axis) ?? ""
                     let width = label.boundingRect(with: labelMaxSize, options: .usesLineFragmentOrigin, attributes: labelAttrs, context: nil).size.width
-                    print("label:\(label),width:\(width)")
+                    
                     if let pt = transformer?.pixelForValues(x: entry.x, y: 0){
                         if pt.x > viewPortHandler.contentLeft + (width/2){
                             startIdx = bIdx
@@ -131,7 +128,6 @@ open class XAxisRenderer: NSObject, AxisRenderer
                 for (bIdx, entry) in entryMap.reversed().enumerated(){
                     let label = axis.valueFormatter?.stringForValue(entry.x, axis: axis) ?? ""
                     let width = label.boundingRect(with: labelMaxSize, options: .usesLineFragmentOrigin, attributes: labelAttrs, context: nil).size.width
-                    print("label:\(label),width:\(width)")
                     if let pt = transformer?.pixelForValues(x: entry.x, y: 0){
                         if pt.x < viewPortHandler.contentRight-(width/2){
                             endIdx = entryMap.count - bIdx - 1
@@ -139,8 +135,7 @@ open class XAxisRenderer: NSObject, AxisRenderer
                         }
                     }
                 }
-                
-                print("start-end:\(startIdx)-\(endIdx)")
+                                
                 var gap = 0
                 if endIdx > startIdx{
                     gap = Int(round( Double(endIdx-startIdx)/Double(labelCount-2+1)))

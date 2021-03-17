@@ -37,6 +37,7 @@ class UDLineChartV2 : LineChartView{
 //        xAxis.setLabelCount(4, force: true)
         
         xAxis.valueFormatter = DateValueFormatter();
+        xAxis.avoidFirstLastClippingEnabled = false
     }
     
     func initYAxis(){
