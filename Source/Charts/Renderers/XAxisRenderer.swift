@@ -144,9 +144,11 @@ open class XAxisRenderer: NSObject, AxisRenderer
                 axis.entries.reserveCapacity(labelCount)
                 
                 var flag = startIdx
-                while (flag < endIdx) {
+                var lCount = 0
+                while (flag < endIdx && lCount < labelCount-1) {
                     axis.entries.append(entryMap[flag].x)
                     flag += gap
+                    lCount += 1
                 }
                 if endIdx != startIdx{
                     axis.entries.append(entryMap[endIdx].x)
