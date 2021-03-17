@@ -136,9 +136,9 @@ open class XAxisRenderer: NSObject, AxisRenderer
                     }
                 }
                                 
-                var gap = 0
+                var gap = 1
                 if endIdx > startIdx{
-                    gap = Int(round( Double(endIdx-startIdx)/Double(labelCount-2+1)))
+                    gap = max(1, Int(round( Double(endIdx-startIdx)/Double(labelCount-2+1))))
                 }
                 axis.entries.removeAll(keepingCapacity: true)
                 axis.entries.reserveCapacity(labelCount)
