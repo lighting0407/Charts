@@ -138,7 +138,7 @@ open class XAxisRenderer: NSObject, AxisRenderer
                                 
                 var gap = 1
                 if endIdx > startIdx{
-                    gap = max(1, Int(round( Double(endIdx-startIdx)/Double(labelCount-2+1))))
+                    gap = Swift.max(1,Int(round( Double(endIdx-startIdx)/Double(labelCount-2+1))) )
                 }
                 axis.entries.removeAll(keepingCapacity: true)
                 axis.entries.reserveCapacity(labelCount)
