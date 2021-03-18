@@ -450,7 +450,6 @@ open class LineChartRenderer: LineRadarRenderer
         if _xBounds.range > maxPixelCount{
             gap = Swift.max(1,Int(round( Double(_xBounds.range) / Double(maxPixelCount))) )
         }
-        print("drawgap:\(gap)")
         
         for bound in bounds{
             self.drawPartStepCubicBezier(context: context, dataSet: dataSet, bound: bound, gap: gap)
@@ -509,7 +508,8 @@ open class LineChartRenderer: LineRadarRenderer
             let entryCount = bound.range+1
             
 //            for j in bound.dropFirst()  // same as firstIndex
-            for j in stride(from: 1, to: bound.max+1, by: gap)
+//            for j in stride(from: bound.min+1, to: bound.max+1, by: gap)
+            for j in stride(from: bound.min, through: bound.range + bound.min, by: gap)
             {
                 prevPrev = prev
                 prev = cur

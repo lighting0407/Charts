@@ -183,7 +183,7 @@ class UDLineChartV2 : LineChartView{
             }else{
                 animateTime = 0.8
             }
-            
+            animateTime = 0.8
             self.animate(xAxisDuration: animateTime)
         }
     }
