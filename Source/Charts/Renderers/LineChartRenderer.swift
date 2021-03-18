@@ -444,12 +444,20 @@ open class LineChartRenderer: LineRadarRenderer
             j += 1
         }
         
+        //如果曲线上的点大于分辨率，贝塞尔曲线会导致绘图卡
+        let maxPixelCount = Int(viewPortHandler.contentWidth*UIScreen.main.scale)
+        var gap = 1
+        if _xBounds.range > maxPixelCount{
+            gap = Swift.max(1,Int(round( Double(_xBounds.range) / Double(maxPixelCount))) )
+        }
+        print("drawgap:\(gap)")
+        
         for bound in bounds{
-            self.drawPartStepCubicBezier(context: context, dataSet: dataSet, bound: bound)
+            self.drawPartStepCubicBezier(context: context, dataSet: dataSet, bound: bound, gap: gap)
         }
     }
     
-    open func drawPartStepCubicBezier(context: CGContext, dataSet: LineChartDataSetProtocol, bound: XBounds){
+    open func drawPartStepCubicBezier(context: CGContext, dataSet: LineChartDataSetProtocol, bound: XBounds, gap: Int = 1){
         guard let dataProvider = dataProvider else { return }
         
         let trans = dataProvider.getTransformer(forAxis: dataSet.axisDependency)
@@ -500,7 +508,8 @@ open class LineChartRenderer: LineRadarRenderer
             }
             let entryCount = bound.range+1
             
-            for j in bound.dropFirst()  // same as firstIndex
+//            for j in bound.dropFirst()  // same as firstIndex
+            for j in stride(from: 1, to: bound.max+1, by: gap)
             {
                 prevPrev = prev
                 prev = cur

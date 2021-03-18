@@ -20,6 +20,7 @@ class UDLineChartV2 : LineChartView{
     override init(frame: CGRect) {
         super.init(frame: frame)
         initView()
+
     }
     
     
@@ -96,6 +97,10 @@ class UDLineChartV2 : LineChartView{
     }
     
     func initView(){
+//        for index in stride(from: 0, to: 6, by: 2) {
+//               print("index:\(index)")
+//
+//           }
         initXAxis()
         initYAxis()
         setupChartView()
