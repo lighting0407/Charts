@@ -32,4 +32,6 @@ public protocol AxisValueFormatter: class
     
     @objc optional func stringForValueInSpecial(_ value: Double, axis: AxisBase?, firstIndex: Int) -> String
     
+    @objc optional func isAxisLabelSpecial(dataSet: [ChartDataEntry])->Bool
+    @objc optional func stringForValueWithSpecial(_ value: Double, axis: AxisBase?, isSpecial: Bool) -> String
 }

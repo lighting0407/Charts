@@ -112,9 +112,10 @@ open class XAxisRenderer: NSObject, AxisRenderer
                                                                 .foregroundColor: axis.labelTextColor,
                                                                 .paragraphStyle: paraStyle]
 
+                let isSpecial = axis.valueFormatter?.isAxisLabelSpecial?(dataSet: entryMap) ?? false
                 var startIdx = 0, endIdx = 0
                 for (bIdx, entry) in entryMap.enumerated(){
-                    let label = axis.valueFormatter?.stringForValue(entry.x, axis: axis) ?? ""
+                    let label = axis.valueFormatter?.stringForValueWithSpecial?(entry.x, axis: axis, isSpecial: isSpecial) ?? "" //axis.valueFormatter?.stringForValue(entry.x, axis: axis) ?? ""
                     let width = label.boundingRect(with: labelMaxSize, options: .usesLineFragmentOrigin, attributes: labelAttrs, context: nil).size.width
                     
                     if let pt = transformer?.pixelForValues(x: entry.x, y: 0){
@@ -126,7 +127,8 @@ open class XAxisRenderer: NSObject, AxisRenderer
                 }
                 
                 for (bIdx, entry) in entryMap.reversed().enumerated(){
-                    let label = axis.valueFormatter?.stringForValue(entry.x, axis: axis) ?? ""
+                    let label = axis.valueFormatter?.stringForValueWithSpecial?(entry.x, axis: axis, isSpecial: isSpecial)  ?? ""
+//                    let label = axis.valueFormatter?.stringForValue(entry.x, axis: axis) ?? ""
                     let width = label.boundingRect(with: labelMaxSize, options: .usesLineFragmentOrigin, attributes: labelAttrs, context: nil).size.width
                     if let pt = transformer?.pixelForValues(x: entry.x, y: 0){
                         if pt.x < viewPortHandler.contentRight-(width/2){
