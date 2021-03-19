@@ -16,6 +16,8 @@
                 <outlet property="sliderX" destination="Xhn-cI-Tqm" id="Bnt-sB-nHc"/>
                 <outlet property="sliderY" destination="IuK-nU-ZPT" id="LcN-C4-Zs8"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+                <outlet property="zoomin" destination="OW8-zO-H1A" id="jO3-zb-ZGN"/>
+                <outlet property="zoomout" destination="c59-r7-gHr" id="wQK-sV-QZb"/>
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
@@ -38,14 +40,22 @@
                     <rect key="frame" x="0.0" y="47" width="375" height="501"/>
                     <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                 </view>
-                <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minValue="1" maxValue="1500" translatesAutoresizingMaskIntoConstraints="NO" id="Xhn-cI-Tqm">
-                    <rect key="frame" x="6" y="573" width="285" height="31"/>
+                <slider opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minValue="1" maxValue="1500" translatesAutoresizingMaskIntoConstraints="NO" id="Xhn-cI-Tqm">
+                    <rect key="frame" x="6" y="582" width="285" height="31"/>
                     <connections>
                         <action selector="slidersValueChanged:" destination="-1" eventType="valueChanged" id="VlG-hf-e0E"/>
                     </connections>
                 </slider>
-                <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minValue="1" maxValue="150" translatesAutoresizingMaskIntoConstraints="NO" id="IuK-nU-ZPT">
-                    <rect key="frame" x="6" y="611" width="285" height="31"/>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="OW8-zO-H1A">
+                    <rect key="frame" x="32" y="554" width="51" height="30"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <state key="normal" title="zoomIn"/>
+                    <connections>
+                        <action selector="onClickZoomIn:" destination="-1" eventType="touchUpInside" id="yEv-Xl-d7O"/>
+                    </connections>
+                </button>
+                <slider opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minValue="1" maxValue="150" translatesAutoresizingMaskIntoConstraints="NO" id="IuK-nU-ZPT">
+                    <rect key="frame" x="6" y="620" width="285" height="31"/>
                     <connections>
                         <action selector="slidersValueChanged:" destination="-1" eventType="valueChanged" id="y5C-Ny-GVF"/>
                     </connections>
@@ -68,6 +78,14 @@
                     <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="15"/>
                     <textInputTraits key="textInputTraits"/>
                 </textField>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="c59-r7-gHr">
+                    <rect key="frame" x="103" y="554" width="61" height="30"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <state key="normal" title="zoomout"/>
+                    <connections>
+                        <action selector="onClickZoomOut:" destination="-1" eventType="touchUpInside" id="Ru2-9S-twe"/>
+                    </connections>
+                </button>
             </subviews>
             <viewLayoutGuide key="safeArea" id="TE7-or-dqL"/>
             <color key="backgroundColor" red="0.94117647059999998" green="0.94117647059999998" blue="0.94117647059999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

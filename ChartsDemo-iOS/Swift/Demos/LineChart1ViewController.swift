@@ -81,7 +81,7 @@ class UDLineChartV2 : LineChartView{
         self.pinchZoomEnabled = true
         
         //自动缩放
-        self.scaleXEnabled = false
+        self.scaleXEnabled = true
         self.scaleYEnabled = false
         self.autoScaleMinMaxEnabled = true
         self.minMaxFlagLineColor = UIColor.green
@@ -229,12 +229,25 @@ class UDLineChartV2 : LineChartView{
 
 class LineChart1ViewController: DemoBaseViewController {
 
+    @IBOutlet weak var zoomout: UIButton!
+    @IBOutlet weak var zoomin: UIButton!
     @IBOutlet var chartView: UDLineChartV2!//LineChartView!
     @IBOutlet var sliderX: UISlider!
     @IBOutlet var sliderY: UISlider!
     @IBOutlet var sliderTextX: UITextField!
     @IBOutlet var sliderTextY: UITextField!
 
+    @IBAction func onClickZoomIn(_ sender: Any) {
+        if self.chartView.scaleX * 2 > chartView.viewPortHandler.maxScaleX{
+            self.chartView.zoomToCenter(scaleX: (chartView.viewPortHandler.maxScaleX/chartView.scaleX), scaleY: 1)
+        }else{
+            self.chartView.zoomToCenter(scaleX: 2, scaleY: 1)
+        }
+        
+    }
+    @IBAction func onClickZoomOut(_ sender: Any) {
+        self.chartView.zoomToCenter(scaleX: 0.5, scaleY: 1)
+    }
     static var globalDateFormat2 = DateFormatter()
     var xAxisFormatter = KeySummaryDateAxisFormatter()
     
@@ -385,7 +398,7 @@ class LineChart1ViewController: DemoBaseViewController {
         }
 
 //        self.setDataCount(Int(sliderX.value), range: UInt32(sliderY.value))
-        self.setDataCount(1, range: UInt32(sliderY.value))
+        self.setDataCount(100, range: UInt32(sliderY.value))
 //        self.setDataCount(10, range: UInt32(sliderY.value))
     }
 

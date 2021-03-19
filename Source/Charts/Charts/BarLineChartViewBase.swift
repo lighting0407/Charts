@@ -682,7 +682,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                     matrix = matrix.translatedBy(x: -location.x, y: -location.y)
                     
                     matrix = viewPortHandler.touchMatrix.concatenating(matrix)
-                    
+                    print("matrix:\(matrix)")
                     viewPortHandler.refresh(newMatrix: matrix, chart: self, invalidate: true)
 
                     if delegate !== nil
@@ -1143,6 +1143,16 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                scaleY: CGFloat)
     {
         let center = centerOffsets
+        //test
+        var m = CGAffineTransform(translationX: center.x, y: center.y)
+        m = m.scaledBy(x: scaleX, y: scaleY)
+        m = m.translatedBy(x: -center.x, y: -center.y)
+        
+        m = viewPortHandler.touchMatrix.concatenating(m)
+        viewPortHandler.refresh(newMatrix: m, chart: self, invalidate: false)
+        //testend
+        
+        
         let matrix = viewPortHandler.zoom(
             scaleX: scaleX,
             scaleY: scaleY,
