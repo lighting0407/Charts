@@ -71,13 +71,25 @@ open class LineChartRenderer: LineRadarRenderer
             drawLinear(context: context, dataSet: dataSet)
             
         case .cubicBezier:
-            var validateFlags = [Bool]()
-            if dataSet.isCheckStepCubicLine  {
-                drawStepCubicBezier(context: context, dataSet: dataSet)
-            }else{
-                drawCubicBezier(context: context, dataSet: dataSet)
-            }
+            guard let dataProvider = dataProvider else { return }
             
+            let trans = dataProvider.getTransformer(forAxis: dataSet.axisDependency)
+            
+            let phaseY = animator.phaseY
+                        
+            _xBounds.set(chart: dataProvider, dataSet: dataSet, animator: animator)
+            let t = ceil(Double(_xBounds.max - _xBounds.min) * animator.phaseX)
+            
+            if Int(t) > Int(viewPortHandler.contentWidth*UIScreen.main.scale){
+                drawLinear(context: context, dataSet: dataSet)
+            }else{
+                var validateFlags = [Bool]()
+                if dataSet.isCheckStepCubicLine  {
+                    drawStepCubicBezier(context: context, dataSet: dataSet)
+                }else{
+                    drawCubicBezier(context: context, dataSet: dataSet)
+                }
+            }
             
         case .horizontalBezier:
             drawHorizontalBezier(context: context, dataSet: dataSet)

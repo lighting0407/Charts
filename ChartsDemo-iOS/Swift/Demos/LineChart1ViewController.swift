@@ -385,7 +385,7 @@ class LineChart1ViewController: DemoBaseViewController {
         }
 
 //        self.setDataCount(Int(sliderX.value), range: UInt32(sliderY.value))
-        self.setDataCount(12, range: UInt32(sliderY.value))
+        self.setDataCount(1, range: UInt32(sliderY.value))
 //        self.setDataCount(10, range: UInt32(sliderY.value))
     }
 
