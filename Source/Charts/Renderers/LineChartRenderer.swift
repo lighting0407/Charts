@@ -134,11 +134,15 @@ open class LineChartRenderer: LineRadarRenderer
             if !viewPortHandler.isInBounds(x: pt.x, y: pt.y){
                 continue
             }
-            
-            if entry!.y >= maxYValue{
-                maxYValue = entry!.y
-                maxEntry = entry!
+            if dataSet.isDashLastPoint && i == _xBounds.max{
+                continue
+            }else{
+                if entry!.y >= maxYValue{
+                    maxYValue = entry!.y
+                    maxEntry = entry!
+                }
             }
+            
         }
         
         if maxEntry == nil{

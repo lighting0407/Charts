@@ -66,6 +66,8 @@ class UDLineChartV2 : LineChartView{
         leftAxis.gridColor = .green//Y轴刻度线颜色
         leftAxis.axisLineColor = .blue//Y轴颜色
         leftAxis.labelTextColor = .blue//Y轴刻度颜色
+        leftAxis.yOffset = -5
+        self.extraTopOffset = 10
 
 //        leftAxis.axisMaximum = 200
 //        leftAxis.axisMinimum = -50
