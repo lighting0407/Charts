@@ -50,7 +50,7 @@ class UDLineChartV2 : LineChartView{
         leftAxis.resetCustomAxisMax()
         
         leftAxis.drawGridLinesEnabled = true //是否显示Y坐标轴上的刻度横线，默认是TRUE
-        leftAxis.drawAxisLineEnabled = true //是否绘制坐标轴线，即含有坐标的那条线，默认TRUE
+        leftAxis.drawAxisLineEnabled = false //是否绘制坐标轴线，即含有坐标的那条线，默认TRUE
         leftAxis.drawZeroLineEnabled = false //是否绘制0刻度线
         leftAxis.drawLabelsEnabled = true //是否显示Y轴刻度
         leftAxis.gridLineDashLengths = nil

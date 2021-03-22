@@ -1153,12 +1153,12 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         //testend
         
         
-        let matrix = viewPortHandler.zoom(
-            scaleX: scaleX,
-            scaleY: scaleY,
-            x: center.x,
-            y: -center.y)
-        viewPortHandler.refresh(newMatrix: matrix, chart: self, invalidate: false)
+//        let matrix = viewPortHandler.zoom(
+//            scaleX: scaleX,
+//            scaleY: scaleY,
+//            x: center.x,
+//            y: -center.y)
+//        viewPortHandler.refresh(newMatrix: matrix, chart: self, invalidate: false)
     }
     
     /// Zooms by the specified scale factor to the specified values on the specified axis.
