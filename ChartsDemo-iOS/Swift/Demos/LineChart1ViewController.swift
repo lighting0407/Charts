@@ -106,6 +106,7 @@ class UDLineChartV2 : LineChartView{
         initXAxis()
         initYAxis()
         setupChartView()
+//        self.highlightPerTapEnabled = false
     }
     
     //scale function

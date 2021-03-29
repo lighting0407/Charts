@@ -150,6 +150,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         _longGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPressGestureRecognized(_:)))
         self.addGestureRecognizer(_longGestureRecognizer)
         _longGestureRecognizer.isEnabled = _longPressEnabled
+        _longGestureRecognizer.minimumPressDuration = 0.3
     }
     
     open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?)
