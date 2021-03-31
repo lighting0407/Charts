@@ -400,8 +400,10 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 ) { (element) in
                     element.accessibilityFrame = barRect
                 }
-
-                accessibilityOrderedElements[j/stackSize].append(element)
+                if j < accessibilityOrderedElements.count-1{
+                    accessibilityOrderedElements[j/stackSize].append(element)
+                }
+//                accessibilityOrderedElements[j/stackSize].append(element)
             }
         }
     }
