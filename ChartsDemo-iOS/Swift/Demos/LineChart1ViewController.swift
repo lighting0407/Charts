@@ -239,6 +239,7 @@ class LineChart1ViewController: DemoBaseViewController {
     @IBOutlet var sliderTextY: UITextField!
 
     @IBAction func onClickZoomIn(_ sender: Any) {
+        
         if self.chartView.scaleX * 2 > chartView.viewPortHandler.maxScaleX{
             self.chartView.zoomToCenter(scaleX: (chartView.viewPortHandler.maxScaleX/chartView.scaleX), scaleY: 1)
         }else{
@@ -382,7 +383,7 @@ class LineChart1ViewController: DemoBaseViewController {
 
     @objc override func chartValueSelected(_ chartView: ChartViewBase, entry: ChartDataEntry, highlight: Highlight){
         
-        
+       
         guard let set = chartView.data![highlight.dataSetIndex] as? LineChartDataSetProtocol,
               set.isHighlightEnabled
         else { return }

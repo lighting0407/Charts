@@ -835,6 +835,18 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
             }
                       
             _isDragging = false
+            if isHighlightPerDragEnabled
+            {
+                let h = getHighlightByTouchPoint(recognizer.location(in: self))
+                
+                let lastHighlighted = self.lastHighlighted
+                
+                if h != lastHighlighted
+                {
+                    self.lastHighlighted = h
+                    self.highlightValue(h, callDelegate: true)
+                }
+            }
             delegate?.chartViewBeginPanningOrLongPress?(self)
         }
         else if recognizer.state == NSUIGestureRecognizerState.changed
