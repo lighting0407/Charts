@@ -310,6 +310,58 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         }
     }
     
+    override func drawMarkers(context: CGContext) {
+        
+        if self.isDrawCustomMarkersEnabled{
+            guard data != nil else{return}
+            if customMarker.count != data?.dataSetCount{
+                super.drawMarkers(context: context)
+                return
+            }
+            
+            // if there is no marker view or drawing marker is disabled
+            guard isDrawMarkersEnabled,valuesToHighlight() else { return }
+            
+            for highlight in highlighted
+            {
+               
+                for setIdx in 0..<data!.dataSets.count{
+                    guard
+                        let set = data?[setIdx],
+                        let e = data?.entry(for: highlight)
+                        else { continue }
+
+                    let entryIndex = set.entryIndex(entry: e)
+                    guard entryIndex <= Int(Double(set.entryCount) * chartAnimator.phaseX) else { continue }
+
+
+                    guard let e2 = set.entryForXValue(highlight.x, closestToY: highlight.y) else { continue }
+                    let x = e2.x // get the x-position
+                    let y = e2.y * Double(chartAnimator.phaseY)
+                    let trans = getTransformer(forAxis: set.axisDependency)
+                    
+                    let pt = trans.pixelForValues(x: x, y: y)
+
+                    let pos = pt// getMarkerPosition(highlight: highlight)
+
+                    // check bounds
+                    guard viewPortHandler.isInBounds(x: pos.x, y: pos.y) else { continue }
+
+                    
+                    // callbacks to update the content
+                    customMarker[setIdx].refreshContent(entry: e, highlight: highlight)
+
+                    // draw the marker
+                    customMarker[setIdx].draw(context: context, point: pos)
+                }
+
+            }
+        }else{
+            super.drawMarkers(context: context)
+        }
+       
+    }
+    
     private var _autoScaleLastLowestVisibleX: Double?
     private var _autoScaleLastHighestVisibleX: Double?
     

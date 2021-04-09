@@ -448,6 +448,8 @@ class LineChart1ViewController: DemoBaseViewController {
 //        chartView.data = data
         chartView.setDataInSacelable(data, hasAnimate: true)
         
+        
+        
         if let dataSet = chartView.data?.dataSet(at: 0){
             if dataSet.entryCount > 0{
                 let entry = dataSet.entryForIndex(dataSet.entryCount-1)
