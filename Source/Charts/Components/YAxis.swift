@@ -213,22 +213,25 @@ open class YAxis: AxisBase
             return
         }
         
-        if delta < 100{
-            dMin = max(0, dMin)
-            _axisMinimum = dMin
-            _axisMaximum = dMax
-            if (dMin <= 1 && dMax <= 1){
-                dMax = dMax + delta / 4.0
-                dMax = min(1, dMax)
-                _axisMaximum = dMax
-            }
-            // calc actual range
-            axisRange = abs(_axisMaximum - _axisMinimum)
-            return
-        }
+//        if delta < 100{
+//            dMin = max(0, dMin)
+//            _axisMinimum = dMin
+//            _axisMaximum = dMax
+//            if (dMin <= 1 && dMax <= 1){
+//                dMax = dMax + delta / 4.0
+//                dMax = min(1, dMax)
+//                _axisMaximum = dMax
+//            }
+//            // calc actual range
+//            axisRange = abs(_axisMaximum - _axisMinimum)
+//            return
+//        }
         
         dMin = dMin - delta / 6.0
         dMin = max(0, dMin)
+        if (dMin < 1){
+            dMin = 0
+        }
         
         let minStr = String("\(Int(dMin))")
         let minLength = minStr.count
