@@ -217,6 +217,11 @@ open class YAxis: AxisBase
             dMin = max(0, dMin)
             _axisMinimum = dMin
             _axisMaximum = dMax
+            if (dMin <= 1 && dMax <= 1){
+                dMax = dMax + delta / 4.0
+                dMax = min(1, dMax)
+                _axisMaximum = dMax
+            }
             // calc actual range
             axisRange = abs(_axisMaximum - _axisMinimum)
             return

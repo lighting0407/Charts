@@ -387,6 +387,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         if rightAxis.isEnabled
         {
             rightAxis.calculate(min: data.getYMin(axis: .right), max: data.getYMax(axis: .right))
+            rightAxis.reCalculateMinMaxForAutoScale(min: data.getYMin(axis: .right), max: data.getYMax(axis: .right))
         }
         
         calculateOffsets()
