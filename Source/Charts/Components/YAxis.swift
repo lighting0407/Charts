@@ -42,6 +42,12 @@ open class YAxis: AxisBase
         case right
     }
     
+    @objc
+    public enum YAxisNumberType: Int
+    {
+        case number
+        case percent
+    }
     /// indicates if the bottom y-label entry is drawn or not
     @objc open var drawBottomYLabelEntryEnabled = true
     
@@ -96,6 +102,9 @@ open class YAxis: AxisBase
     /// 
     /// **default**: CGFloat.infinity
     @objc open var maxWidth = CGFloat(CGFloat.infinity)
+    
+    @objc open var numberType = YAxisNumberType.number
+    
     
     public override init()
     {
@@ -229,21 +238,22 @@ open class YAxis: AxisBase
         
         dMin = dMin - delta / 6.0
         dMin = max(0, dMin)
-        if (dMin < 1){
-            dMin = 0
-        }
-        
-        let minStr = String("\(Int(dMin))")
-        let minLength = minStr.count
-        if minLength < 3{
-            dMin = 0
-        }else{
-            var secondChar = String(minStr[minStr.index(minStr.startIndex, offsetBy: 1)])
-            var firstChar = String(minStr[minStr.index(minStr.startIndex, offsetBy: 0)])
-            secondChar = Int(secondChar)! > 5 ? "5" : "0"
-            let dm1 : Double = Double(firstChar)! * pow(Double(10), Double(minLength-1))
-            let dm2 : Double = Double(secondChar)! * pow(10.0, Double(minLength-2))
-            dMin = dm1 + dm2
+//        if (dMin < 1){
+//            dMin = 0
+//        }
+        if numberType == .number{
+            let minStr = String("\(Int(dMin))")
+            let minLength = minStr.count
+            if minLength < 3{
+                dMin = 0
+            }else{
+                var secondChar = String(minStr[minStr.index(minStr.startIndex, offsetBy: 1)])
+                var firstChar = String(minStr[minStr.index(minStr.startIndex, offsetBy: 0)])
+                secondChar = Int(secondChar)! > 5 ? "5" : "0"
+                let dm1 : Double = Double(firstChar)! * pow(Double(10), Double(minLength-1))
+                let dm2 : Double = Double(secondChar)! * pow(10.0, Double(minLength-2))
+                dMin = dm1 + dm2
+            }
         }
         
         dMax = dMax + delta / 4.0
