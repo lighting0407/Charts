@@ -336,6 +336,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
 
 
                     guard let e2 = set.entryForXValue(highlight.x, closestToY: highlight.y) else { continue }
+                    if e2.y < 0{continue}
                     let x = e2.x // get the x-position
                     let y = e2.y * Double(chartAnimator.phaseY)
                     let trans = getTransformer(forAxis: set.axisDependency)
