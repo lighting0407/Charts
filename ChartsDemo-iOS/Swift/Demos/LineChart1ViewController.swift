@@ -25,6 +25,7 @@ class UDLineChartV2 : LineChartView{
     
     
     func initXAxis(){
+        
         let xAxis = self.xAxis
         xAxis.drawLabelsEnabled = true
         xAxis.drawAxisLineEnabled = true
@@ -74,7 +75,7 @@ class UDLineChartV2 : LineChartView{
 //        self.minLOffset = 50.0
     }
     func setupChartView(){
-        self.noDataText = ""
+        
         self.chartDescription.enabled = false
         self.dragEnabled = true
         self.setScaleEnabled(true)
@@ -423,6 +424,9 @@ class LineChart1ViewController: DemoBaseViewController {
         chartView.startVisibleRange = 6.5*60*60*24
         
         let set1 = LineChartDataSet(entries: values, label: "DataSet 1")
+//        let set1 = LineChartDataSet(entries: [], label: "DataSet 1")
+        chartView.noDataText = "没有数据1"
+        chartView.noDataTextColor = .black
         set1.drawIconsEnabled = false
         setup(set1)
 

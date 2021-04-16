@@ -268,7 +268,20 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     {
         guard let context = NSUIGraphicsGetCurrentContext() else { return }
 
-        if data === nil && !noDataText.isEmpty
+        var isEmptyData = true
+        if let d = data{
+            for set in d.dataSets{
+                if set.entryCount > 0{
+                    isEmptyData = false
+                    break
+                }
+            }
+        }else{
+            isEmptyData = true
+        }
+        
+//        if data === nil && !noDataText.isEmpty
+        if isEmptyData && !noDataText.isEmpty
         {
             context.saveGState()
             defer { context.restoreGState() }
