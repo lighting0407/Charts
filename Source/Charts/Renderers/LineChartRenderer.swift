@@ -434,7 +434,13 @@ open class LineChartRenderer: LineRadarRenderer
                 if entry.y > dataSet.minValidateValue{
                     tMin = j
                     var hasEndIndex = false
-                    for s in _xBounds.dropFirst(tMin+1){
+                    let tmpBound = XBounds()
+                    tmpBound.min = tMin+1
+                    tmpBound.max = _xBounds.max
+                    tmpBound.range = tmpBound.max - tmpBound.min
+                    
+//                    for s in _xBounds.dropFirst(tMin+1){
+                    for s in tmpBound{                    
                         if let entry2 = dataSet.entryForIndex(s){
                             if entry2.y < dataSet.minValidateValue{
                                 tMax = s-1
