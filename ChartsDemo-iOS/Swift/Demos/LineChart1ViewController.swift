@@ -401,7 +401,7 @@ class LineChart1ViewController: DemoBaseViewController {
         }
 
 //        self.setDataCount(Int(sliderX.value), range: UInt32(sliderY.value))
-        self.setDataCount(100, range: UInt32(sliderY.value))
+        self.setDataCount(10, range: UInt32(sliderY.value))
 //        self.setDataCount(10, range: UInt32(sliderY.value))
     }
 
@@ -410,7 +410,8 @@ class LineChart1ViewController: DemoBaseViewController {
         let date: Double = 1612915200
         let values = (0..<count).map { (i) -> ChartDataEntry in
 //            let val = Double(arc4random_uniform(range) + 3)
-            let  val = v1[i % v1.count] * 1000
+//            let  val = i == count-4 ? -1 : v1[i % v1.count] * 1000
+            let  val =  v1[i % v1.count] * 1000
             let d = date + Double(i*60*60*24)
             return ChartDataEntry(x: d, y: val, icon: #imageLiteral(resourceName: "icon"))
 //            return ChartDataEntry(x: Double(i), y: val, icon: #imageLiteral(resourceName: "icon"))
@@ -419,6 +420,7 @@ class LineChart1ViewController: DemoBaseViewController {
 //            let val = Double(arc4random_uniform(range) + 3)
 //            return ChartDataEntry(x: Double(i), y: val, icon: #imageLiteral(resourceName: "icon"))
 //        }
+        
         
 
         chartView.startVisibleRange = 6.5*60*60*24
@@ -447,7 +449,27 @@ class LineChart1ViewController: DemoBaseViewController {
         set1.fill = LinearGradientFill(gradient: gradient, angle: 270)
         set1.drawFilledEnabled = true
 
-        let data = LineChartData(dataSet: set1)
+        let v2: [Double] = [12,15,4,18,7,11]
+        
+        let values2 = (0..<count).map { (i) -> ChartDataEntry in
+//            let val = Double(arc4random_uniform(range) + 3)
+//            let  val = v1[i % v1.count] * 1000
+//            let val = i == count-4 ? -1 : Double(arc4random_uniform(20) + 3)*1000
+            let val =  Double(arc4random_uniform(20) + 3)*1000
+            let d = date + Double(i*60*60*24)
+            return ChartDataEntry(x: d, y: val)
+        }
+        
+        let set2 = LineChartDataSet(entries: values2, label: "DataSet 2")
+        set2.drawIconsEnabled = false
+        setup(set2, isBezier: false)
+        set2.colors = [UIColor.green]//[UIColor.green,UIColor.red,UIColor.yellow]
+        set2.axisDependency = .right
+        
+        
+        
+//        let data = LineChartData(dataSet: set1)
+        let data = LineChartData(dataSets: [set1, set2] )
 
 //        chartView.data = data
         chartView.setDataInSacelable(data, hasAnimate: true)
@@ -463,8 +485,8 @@ class LineChart1ViewController: DemoBaseViewController {
         }
     }
 
-    private func setup(_ dataSet: LineChartDataSet) {
-        dataSet.mode = .cubicBezier
+    private func setup(_ dataSet: LineChartDataSet, isBezier: Bool = true) {
+        dataSet.mode = isBezier ? .cubicBezier : .linear
         dataSet.isDashLastPoint = true
         dataSet.isCheckStepCubicLine = true//false//true
         dataSet.drawValuesEnabled = false

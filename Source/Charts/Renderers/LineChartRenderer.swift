@@ -66,24 +66,24 @@ open class LineChartRenderer: LineRadarRenderer
         // if drawing cubic lines is enabled
         switch dataSet.mode
         {
-        case .linear: fallthrough
+        case .linear:
+            if dataSet.isCheckStepCubicLine  {
+                drawStepLinear(context: context, dataSet: dataSet)
+            }else{
+                drawLinear(context: context, dataSet: dataSet)
+            }
         case .stepped:
             drawLinear(context: context, dataSet: dataSet)
             
         case .cubicBezier:
             guard let dataProvider = dataProvider else { return }
-            
-            let trans = dataProvider.getTransformer(forAxis: dataSet.axisDependency)
-            
-            let phaseY = animator.phaseY
-                        
+                                            
             _xBounds.set(chart: dataProvider, dataSet: dataSet, animator: animator)
             let t = ceil(Double(_xBounds.max - _xBounds.min) * animator.phaseX)
             
             if Int(t) > Int(viewPortHandler.contentWidth*UIScreen.main.scale){
                 drawLinear(context: context, dataSet: dataSet)
             }else{
-                var validateFlags = [Bool]()
                 if dataSet.isCheckStepCubicLine  {
                     drawStepCubicBezier(context: context, dataSet: dataSet)
                 }else{
@@ -405,66 +405,7 @@ open class LineChartRenderer: LineRadarRenderer
     //检测数据分段画曲线
     @objc open func drawStepCubicBezier(context: CGContext, dataSet: LineChartDataSetProtocol)
     {
-        guard let dataProvider = dataProvider else { return }
-        
-        let trans = dataProvider.getTransformer(forAxis: dataSet.axisDependency)
-        
-        let phaseY = animator.phaseY
-        
-        //设置range，多画一个后面的点，方便做平滑动画
-        _xBounds.set(chart: dataProvider, dataSet: dataSet, animator: animator)
-        let t = ceil(Double(_xBounds.max - _xBounds.min) * animator.phaseX)
-        _xBounds.range = Int(t)
-        //裁剪绘图区域，根据动画来
-        var clipRect = viewPortHandler.contentRect
-        clipRect.size.width = clipRect.width*CGFloat(animator.phaseX)
-        context.clip(to: clipRect)
-        
-        //检查数据
-        guard _xBounds.range >= 1 else { return }
-        var bounds : [XBounds] = []
-        var tMin = -1//Double.greatestFiniteMagnitude
-        var tMax = -1//-Double.greatestFiniteMagnitude
-  
-        
-//        print("_xBounds:\(_xBounds)")
-        var j = _xBounds.min
-        while(j <= _xBounds.max){
-            if let entry = dataSet.entryForIndex(j){
-                if entry.y > dataSet.minValidateValue{
-                    tMin = j
-                    var hasEndIndex = false
-                    let tmpBound = XBounds()
-                    tmpBound.min = tMin+1
-                    tmpBound.max = _xBounds.max
-                    tmpBound.range = tmpBound.max - tmpBound.min
-                    
-//                    for s in _xBounds.dropFirst(tMin+1){
-                    for s in tmpBound{                    
-                        if let entry2 = dataSet.entryForIndex(s){
-                            if entry2.y < dataSet.minValidateValue{
-                                tMax = s-1
-                                hasEndIndex = true
-                                break
-                            }
-                        }
-                    }
-                    if hasEndIndex{
-                        j = tMax
-                    }else{
-                        j = _xBounds.max
-                        tMax = j
-                    }
-                    //构建
-                    let b = XBounds()
-                    b.min = tMin
-                    b.max = tMax
-                    b.range = tMax - tMin
-                    bounds.append(b)
-                }
-            }
-            j += 1
-        }
+        let bounds = calcStepBounds(context: context, dataSet: dataSet)
         
         //如果曲线上的点大于分辨率，贝塞尔曲线会导致绘图卡
         let maxPixelCount = Int(viewPortHandler.contentWidth*UIScreen.main.scale)
@@ -533,10 +474,13 @@ open class LineChartRenderer: LineRadarRenderer
 //            for j in stride(from: bound.min+1, to: bound.max+1, by: gap)
             for j in stride(from: bound.min, through: bound.range + bound.min, by: gap)
             {
+                
                 prevPrev = prev
                 prev = cur
                 cur = nextIndex == j ? next : dataSet.entryForIndex(j)
                 
+                //第一个点不画，要不然会出现一个对两个重合点的曲线
+                if (j == bound.min && prevPrev == prev && prev == cur ){continue}
 //                nextIndex = j + 1 < dataSet.entryCount ? j + 1 : j
 //                nextIndex = j + 1 < entryCount ? j + 1 : j
                 nextIndex = j + 1 <= bound.max ? j + 1 : j
@@ -723,6 +667,7 @@ open class LineChartRenderer: LineRadarRenderer
     }
     
     private var _lineSegments = [CGPoint](repeating: CGPoint(), count: 2)
+            
     
     @objc open func drawLinear(context: CGContext, dataSet: LineChartDataSetProtocol)
     {
@@ -875,6 +820,265 @@ open class LineChartRenderer: LineRadarRenderer
                     context.addPath(path)
                     context.setStrokeColor(dataSet.color(atIndex: 0).cgColor)
                     context.strokePath()
+                }
+            }
+        }
+    }
+    
+    func calcStepBounds(context: CGContext, dataSet: LineChartDataSetProtocol)-> [XBounds]{
+        guard let dataProvider = dataProvider else { return [_xBounds]}
+        
+        //设置range，多画一个后面的点，方便做平滑动画
+        _xBounds.set(chart: dataProvider, dataSet: dataSet, animator: animator)
+        let t = ceil(Double(_xBounds.max - _xBounds.min) * animator.phaseX)
+        _xBounds.range = Int(t)
+        //裁剪绘图区域，根据动画来
+        var clipRect = viewPortHandler.contentRect
+        clipRect.size.width = clipRect.width*CGFloat(animator.phaseX)
+        context.clip(to: clipRect)
+        
+        //检查数据
+        guard _xBounds.range >= 1 else { return [_xBounds] }
+        var bounds : [XBounds] = []
+        var tMin = -1//Double.greatestFiniteMagnitude
+        var tMax = -1//-Double.greatestFiniteMagnitude
+  
+        var j = _xBounds.min
+        while(j <= _xBounds.max){
+            if let entry = dataSet.entryForIndex(j){
+                if entry.y > dataSet.minValidateValue{
+                    tMin = j
+                    var hasEndIndex = false
+                    let tmpBound = XBounds()
+                    tmpBound.min = min(_xBounds.max, tMin+1)
+                    tmpBound.max = _xBounds.max
+                    tmpBound.range = tmpBound.max - tmpBound.min
+                    
+                    for s in tmpBound{
+                        if let entry2 = dataSet.entryForIndex(s){
+                            if entry2.y < dataSet.minValidateValue{
+                                tMax = s-1
+                                hasEndIndex = true
+                                break
+                            }
+                        }
+                    }
+                    if hasEndIndex{
+                        j = tMax
+                    }else{
+                        j = _xBounds.max
+                        tMax = j
+                    }
+                    //构建
+                    let b = XBounds()
+                    b.min = tMin
+                    b.max = tMax
+                    b.range = tMax - tMin
+                    bounds.append(b)
+                }
+            }
+            j += 1
+        }
+        return bounds
+    }
+    
+    @objc open func drawStepLinear(context: CGContext, dataSet: LineChartDataSetProtocol){
+        let bounds = calcStepBounds(context: context, dataSet: dataSet)
+        
+        for bound in bounds{
+            self.drawPartStepLinear(context: context, dataSet: dataSet, bound: bound)
+        }
+    }
+    
+    //TODO:分段划线目前只处理了dataSet.colors.count==1的情况，dataSet.colors.count>1时，也不会处理虚线等
+    open func drawPartStepLinear(context: CGContext, dataSet: LineChartDataSetProtocol, bound: XBounds){
+        guard let dataProvider = dataProvider else { return }
+        
+        let trans = dataProvider.getTransformer(forAxis: dataSet.axisDependency)
+        
+        let valueToPixelMatrix = trans.valueToPixelMatrix
+        
+        let entryCount = dataSet.entryCount
+        let isDrawSteppedEnabled = dataSet.mode == .stepped
+        let pointsPerEntryPair = isDrawSteppedEnabled ? 4 : 2
+        
+        let phaseY = animator.phaseY
+        
+//        _xBounds.set(chart: dataProvider, dataSet: dataSet, animator: animator)
+        
+        // if drawing filled is enabled
+        if dataSet.isDrawFilledEnabled && entryCount > 0
+        {
+//            drawLinearFill(context: context, dataSet: dataSet, trans: trans, bounds: _xBounds)
+            drawLinearFill(context: context, dataSet: dataSet, trans: trans, bounds: bound)
+        }
+        
+        context.saveGState()
+        defer { context.restoreGState() }
+        
+        var isDrawLastPointDashPath = false
+        let dataSet1 = dataSet as? LineChartDataSet
+        if dataSet1 != nil && dataSet1!.isDashLastPoint && bound.max == dataSet.entryCount-1{
+            isDrawLastPointDashPath = true
+        }
+
+        // more than 1 color
+        if dataSet.colors.count > 1, !dataSet.isDrawLineWithGradientEnabled
+        {
+            if _lineSegments.count != pointsPerEntryPair
+            {
+                // Allocate once in correct size
+                _lineSegments = [CGPoint](repeating: CGPoint(), count: pointsPerEntryPair)
+            }
+
+            for j in bound.dropLast()
+            {
+                var e: ChartDataEntry! = dataSet.entryForIndex(j)
+                
+                if e == nil { continue }
+                
+                _lineSegments[0].x = CGFloat(e.x)
+                _lineSegments[0].y = CGFloat(e.y * phaseY)
+                
+                if j < bound.max
+                {
+                    // TODO: remove the check.
+                    // With the new XBounds iterator, j is always smaller than _xBounds.max
+                    // Keeping this check for a while, if xBounds have no further breaking changes, it should be safe to remove the check
+                    e = dataSet.entryForIndex(j + 1)
+                    
+                    if e == nil { break }
+                    
+                    if isDrawSteppedEnabled
+                    {
+                        _lineSegments[1] = CGPoint(x: CGFloat(e.x), y: _lineSegments[0].y)
+                        _lineSegments[2] = _lineSegments[1]
+                        _lineSegments[3] = CGPoint(x: CGFloat(e.x), y: CGFloat(e.y * phaseY))
+                    }
+                    else
+                    {
+                        _lineSegments[1] = CGPoint(x: CGFloat(e.x), y: CGFloat(e.y * phaseY))
+                    }
+                }
+                else
+                {
+                    _lineSegments[1] = _lineSegments[0]
+                }
+
+                _lineSegments = _lineSegments.map { $0.applying(valueToPixelMatrix) }
+
+                if (!viewPortHandler.isInBoundsRight(_lineSegments[0].x))
+                {
+                    break
+                }
+
+                // Determine the start and end coordinates of the line, and make sure they differ.
+                guard
+                    let firstCoordinate = _lineSegments.first,
+                    let lastCoordinate = _lineSegments.last,
+                    firstCoordinate != lastCoordinate else { continue }
+                
+                // make sure the lines don't do shitty things outside bounds
+                if !viewPortHandler.isInBoundsLeft(lastCoordinate.x) ||
+                    !viewPortHandler.isInBoundsTop(max(firstCoordinate.y, lastCoordinate.y)) ||
+                    !viewPortHandler.isInBoundsBottom(min(firstCoordinate.y, lastCoordinate.y))
+                {
+                    continue
+                }
+                
+                // get the color that is set for this line-segment
+                context.setStrokeColor(dataSet.color(atIndex: j).cgColor)
+                context.strokeLineSegments(between: _lineSegments)
+            }
+        }
+        else
+        { // only one color per dataset
+            guard dataSet.entryForIndex(_xBounds.min) != nil else {
+                return
+            }
+
+            var firstPoint = true
+
+            let path = CGMutablePath()
+            
+            let lastPointDashPath = CGMutablePath()
+            var isLastPt = false
+            
+            for x in stride(from: bound.min, through: bound.range + bound.min, by: 1)
+            {
+                guard let e1 = dataSet.entryForIndex(x == bound.min ? bound.min : (x - 1)) else { continue }
+                
+//                guard let e1 = dataSet.entryForIndex(x == 0 ? 0 : (x - 1)) else { continue }
+                guard let e2 = dataSet.entryForIndex(x) else { continue }
+                
+                if dataSet.lineDashLengths == nil && isDrawLastPointDashPath && x == _xBounds.max  {
+                    //最后一个点虚线
+                    isLastPt = true
+
+                }
+                
+                let startPoint =
+                    CGPoint(
+                        x: CGFloat(e1.x),
+                        y: CGFloat(e1.y * phaseY))
+                    .applying(valueToPixelMatrix)
+                
+                if firstPoint
+                {
+                    path.move(to: startPoint)
+                    firstPoint = false
+                }
+                else
+                {
+                    if !isLastPt{
+                        path.addLine(to: startPoint)
+                    }else{
+                        lastPointDashPath.move(to: startPoint)
+                        lastPointDashPath.addLine(to: startPoint)
+                    }
+                    
+                }
+                
+                if isDrawSteppedEnabled
+                {
+                    let steppedPoint =
+                        CGPoint(
+                            x: CGFloat(e2.x),
+                            y: CGFloat(e1.y * phaseY))
+                        .applying(valueToPixelMatrix)
+                    path.addLine(to: steppedPoint)
+                }
+
+                let endPoint =
+                    CGPoint(
+                        x: CGFloat(e2.x),
+                        y: CGFloat(e2.y * phaseY))
+                    .applying(valueToPixelMatrix)
+                if !isLastPt{
+                    path.addLine(to: endPoint)
+                }else{
+                    lastPointDashPath.addLine(to: endPoint)
+                }
+                
+            }
+            
+            if !firstPoint
+            {
+                if dataSet.isDrawLineWithGradientEnabled {
+                    drawGradientLine(context: context, dataSet: dataSet, spline: path, matrix: valueToPixelMatrix)
+                } else {
+                    context.beginPath()
+                    context.addPath(path)
+                    context.setStrokeColor(dataSet.color(atIndex: 0).cgColor)
+                    context.strokePath()
+                    
+                    if isDrawLastPointDashPath{
+                        context.setLineDash(phase: 0.0, lengths: [2, 2])
+                        context.beginPath()
+                        context.addPath(lastPointDashPath)
+                        context.setStrokeColor(dataSet.color(atIndex: 0).cgColor)
+                        context.strokePath()
+                    }
                 }
             }
         }
