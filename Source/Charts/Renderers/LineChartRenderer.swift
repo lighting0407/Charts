@@ -82,7 +82,12 @@ open class LineChartRenderer: LineRadarRenderer
             let t = ceil(Double(_xBounds.max - _xBounds.min) * animator.phaseX)
             
             if Int(t) > Int(viewPortHandler.contentWidth*UIScreen.main.scale){
-                drawLinear(context: context, dataSet: dataSet)
+//                drawLinear(context: context, dataSet: dataSet)
+                if dataSet.isCheckStepCubicLine  {
+                    drawStepLinear(context: context, dataSet: dataSet)
+                }else{
+                    drawLinear(context: context, dataSet: dataSet)
+                }
             }else{
                 if dataSet.isCheckStepCubicLine  {
                     drawStepCubicBezier(context: context, dataSet: dataSet)
