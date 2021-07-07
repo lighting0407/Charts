@@ -314,7 +314,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         
         if self.isDrawCustomMarkersEnabled{
             guard data != nil else{return}
-            if customMarker.count != data?.dataSetCount{
+            if customMarker.count < data!.dataSetCount{
                 super.drawMarkers(context: context)
                 return
             }
