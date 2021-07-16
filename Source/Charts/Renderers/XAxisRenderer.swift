@@ -147,7 +147,7 @@ open class XAxisRenderer: NSObject, AxisRenderer
                 
                 var flag = startIdx
                 var lCount = 0
-                while (flag < endIdx && lCount < labelCount-1) {
+                while (flag <= endIdx && lCount < labelCount-1) {
                     axis.entries.append(entryMap[flag].x)
                     flag += gap
                     lCount += 1
