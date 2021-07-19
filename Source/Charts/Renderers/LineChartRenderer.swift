@@ -81,7 +81,8 @@ open class LineChartRenderer: LineRadarRenderer
             _xBounds.set(chart: dataProvider, dataSet: dataSet, animator: animator)
             let t = ceil(Double(_xBounds.max - _xBounds.min) * animator.phaseX)
             
-            if Int(t) > Int(viewPortHandler.contentWidth*UIScreen.main.scale){
+//            if Int(t) > Int(viewPortHandler.contentWidth*UIScreen.main.scale){
+            if Int(t) > Int(viewPortHandler.contentWidth){
 //                drawLinear(context: context, dataSet: dataSet)
                 if dataSet.isCheckStepCubicLine  {
                     drawStepLinear(context: context, dataSet: dataSet)
