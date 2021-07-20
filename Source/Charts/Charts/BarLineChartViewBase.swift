@@ -332,7 +332,10 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                         let e = data?.entry(for: highlight)
                         else { continue }
 
-                    let entryIndex = set.entryIndex(entry: e)
+                    var entryIndex = set.entryIndex(entry: e)
+                    if entryIndex < 0{
+                        entryIndex = set.entryIndex(x: highlight.x, closestToY: highlight.y, rounding: .closest)
+                    }
                     guard entryIndex <= Int(Double(set.entryCount) * chartAnimator.phaseX) else { continue }
 
 
