@@ -2116,23 +2116,24 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
     }
     
     @objc open func getHighestVisibleCenterPoint() -> CGPoint{
-//        let entry = self.data?.dataSet(at: 0)!.entryForIndex((self.data?.dataSet(at: 0)!.entryCount)!-1)
-//        getTransformer(forAxis: .left).pixelForValues(x: entry?.x, y: entry?.y)
-        
-        //
         let pt = getTransformer(forAxis: .left).valueForTouchPoint(x: viewPortHandler.contentRight, y: viewPortHandler.contentBottom)
         let resultX = max(xAxis.axisMinimum, (Double)(pt.x))
-        let t = self.data?.dataSet(at: 0)!.entryForXValue(resultX, closestToY: 0)
-        let resultY = t!.y//(Double)(pt.y)//max(xAxis.axisMaximum, (Double)(pt.y))
-        return CGPoint(x: resultX, y: resultY)
+        if let t = self.data?.dataSet(at: 0)!.entryForXValue(resultX, closestToY: 0){
+            let resultY = t.y//(Double)(pt.y)//max(xAxis.axisMaximum, (Double)(pt.y))
+            return CGPoint(x: resultX, y: resultY)
+        }else{
+            return CGPoint.zero
+        }
     }
     
     @objc open func getLowestVisibleCenterPoint() -> CGPoint{
-
         let pt = getTransformer(forAxis: .left).valueForTouchPoint(x: viewPortHandler.contentLeft, y: viewPortHandler.contentBottom)
         let resultX = max(xAxis.axisMinimum, (Double)(pt.x))
-        let t = self.data?.dataSet(at: 0)!.entryForXValue(resultX, closestToY: 0)
-        let resultY = t!.y//(Double)(pt.y)//max(xAxis.axisMaximum, (Double)(pt.y))
-        return CGPoint(x: resultX, y: resultY)
+        if let t = self.data?.dataSet(at: 0)!.entryForXValue(resultX, closestToY: 0){
+            let resultY = t.y//(Double)(pt.y)//max(xAxis.axisMaximum, (Double)(pt.y))
+            return CGPoint(x: resultX, y: resultY)
+        }else{
+            return CGPoint.zero
+        }
     }
 }
